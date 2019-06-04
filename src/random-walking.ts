@@ -32,7 +32,7 @@ export class WalkAround implements ISystem  {
 	  let traits = pibe.getComponent(Traits)
       if (lerp.fraction < 1) {
         transform.position = Vector3.Lerp(lerp.oldPos, lerp.nextPos, lerp.fraction)
-        lerp.fraction += 1/50 * traits.speed
+        lerp.fraction += 1/50 * traits.genes[0]
       } else if (lerp.pause > 0) {
         lerp.pause -= 3
       } else {
