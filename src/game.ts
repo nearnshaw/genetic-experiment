@@ -13,3 +13,13 @@ newSon()
 // newSon()
 // newSon()
 // newSon()
+
+
+
+let testCreature = new Entity()
+testCreature.addComponent(new Transform({
+	position: new Vector3(20, 0, 20)
+}))
+testCreature.addComponent(new GLTFShape("models/testCreature.glb"))
+
+engine.addEntity(testCreature)
