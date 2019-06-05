@@ -1,24 +1,14 @@
-import { newSon } from "./reproduce";
-import { WalkAround } from "./random-walking";
-import { DieSLowly } from "./survival";
+import { Creature } from "./Creature"
 
-
-engine.addSystem(new WalkAround())
-engine.addSystem(new DieSLowly())
-
-// first dogs
-
-newSon()
-newSon()
-// newSon()
-// newSon()
-// newSon()
-
-
+let adamEntity = new Entity()
+let adam = new Creature(adamEntity)
+adamEntity.addComponent(adam)
+adam.transform.position = new Vector3(24, 0, 24)
+adam.TargetRandomPosition()
 
 let testCreature = new Entity()
 testCreature.addComponent(new Transform({
-	position: new Vector3(20, 0, 20)
+	position: new Vector3(5, 0, 5)
 }))
 testCreature.addComponent(new GLTFShape("models/testCreature.glb"))
 
