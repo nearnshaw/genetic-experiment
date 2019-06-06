@@ -1,122 +1,139 @@
+const MAX_CREATURES_AMOUNT = 10
 
 // Components
-@Component('creature')
+@Component("creature")
 export class Creature {
-    health: number = 100
-    healthDecaySpeed: number = 3
-    oldPos: Vector3 = Vector3.Zero()
-    nextPos: Vector3 = Vector3.Zero()
-    movementSpeed: number = (Math.random() - 0.5)*2
-    movementFraction: number = 1
-    movementPauseTimer: number = 0
-    transform: Transform
-    shape: GLTFShape
-    walkAnim: AnimationState
-    entity: IEntity
+  health: number = 100
+  healthDecaySpeed: number = 3
+  oldPos: Vector3 = Vector3.Zero()
+  nextPos: Vector3 = Vector3.Zero()
+  movementSpeed: number = Math.max(Math.random() * 0.3, 0.2)
+  movementFraction: number = 1
+  movementPauseTimer: number = 0
+  transform: Transform
+  shape: GLTFShape
+  walkAnim: AnimationState
+  entity: IEntity
 
-    constructor(entity: IEntity){
-        this.entity = entity
+  constructor(entity: IEntity) {
+    this.entity = entity
 
-        this.transform = new Transform();
-        entity.addComponent(this.transform)
-        
-        this.shape = new GLTFShape("models/BlockDog.glb")
-        entity.addComponent(this.shape)
+    this.transform = new Transform()
+    entity.addComponent(this.transform)
 
-        let animator = new Animator()
-        this.walkAnim = animator.getClip('Walking_Armature_0')
-        entity.addComponent(animator)
+    this.shape = new GLTFShape("models/BlockDog.glb")
+    entity.addComponent(this.shape)
 
-        engine.addEntity(entity)
-    }
+    let animator = new Animator()
+    this.walkAnim = animator.getClip("Walking_Armature_0")
+    entity.addComponent(animator)
 
-    TargetRandomPosition(){
-        this.oldPos = this.transform.position
-        this.nextPos = newCenteredRandomPos()
-        this.movementFraction = 0
-        
-        this.transform.lookAt(this.nextPos)
-    }
+    entity.addComponent(
+      new OnClick(() => {
+        // GET GRABBED
+      })
+    )
 
-    SpawnSon(){
-        if (creatures.entities.length >= 10) return
+    engine.addEntity(entity)
+  }
 
-        this.movementPauseTimer = Math.random() * 5
+  TargetRandomPosition() {
+    this.oldPos = this.transform.position
+    this.nextPos = newCenteredRandomPos(new Vector3(24, 0, 24), 8) // (24, 0, 24) is the center of a 3x3 scene
 
-        let sonEntity = new Entity()
-        let sonCreature = new Creature(sonEntity)
-        sonEntity.addComponent(sonCreature)
-        sonCreature.transform.position = this.transform.position
-        sonCreature.TargetRandomPosition()
-    }
+    this.movementFraction = 0
+
+    this.transform.lookAt(this.nextPos)
+  }
+
+  SpawnChild() {
+    if (creatures.entities.length >= MAX_CREATURES_AMOUNT) return
+
+    let sonEntity = new Entity()
+    let sonCreature = new Creature(sonEntity)
+    sonEntity.addComponent(sonCreature)
+    sonCreature.transform.position = this.transform.position
+    sonCreature.TargetRandomPosition()
+
+    sonCreature.movementPauseTimer = Math.random() * 5
+  }
 }
 export const creatures = engine.getComponentGroup(Creature)
 
 // Systems
-export class DieSLowly implements ISystem  {
-	update(dt: number) {
-        for (let entity of creatures.entities) {
-            let creature = entity.getComponent(Creature) 
-            creature.health -= creature.healthDecaySpeed * dt * Math.random()
-        
-            if (creature.health < 0){
-                engine.removeEntity(entity)
-                log("RIP")
-            }
-        }
-	}
+export class DieSLowly implements ISystem {
+  update(dt: number) {
+    for (let entity of creatures.entities) {
+      let creature = entity.getComponent(Creature)
+      creature.health -= creature.healthDecaySpeed * dt * Math.random()
+
+      if (creature.health < 0) {
+        engine.removeEntity(entity)
+        log("RIP")
+      }
+    }
+  }
 }
 engine.addSystem(new DieSLowly())
 
-export class Wander implements ISystem  {
-    update(dt: number) {
-        for (let entity of creatures.entities) {
+export class Wander implements ISystem {
+  update(dt: number) {
+    for (let entity of creatures.entities) {
+      let creature = entity.getComponent(Creature)
 
-            let creature = entity.getComponent(Creature)
+      if (creature.movementPauseTimer > 0) {
+        creature.movementPauseTimer -= dt
 
-            if(creature.movementPauseTimer > 0){
-                creature.movementPauseTimer -= dt
+        if (creature.movementPauseTimer > 0) continue
+      }
 
-                if(creature.movementPauseTimer > 0) continue
-            }
+      if (creature.movementFraction >= 1) continue
 
-            if(creature.movementFraction >= 1) continue
+      if (!creature.walkAnim.playing) {
+        creature.walkAnim.speed = creature.movementSpeed
+        creature.walkAnim.play()
+      }
 
-            if(!creature.walkAnim.playing){
-                creature.walkAnim.speed = creature.movementSpeed
-                creature.walkAnim.play()
-            }
+      creature.movementFraction += creature.movementSpeed * dt
+      if (creature.movementFraction > 1) {
+        creature.movementFraction = 1
+      }
 
-            creature.movementFraction += creature.movementSpeed * dt;
-            if(creature.movementFraction > 1)
-                creature.movementFraction = 1
+      creature.transform.position = Vector3.Lerp(
+        creature.oldPos,
+        creature.nextPos,
+        creature.movementFraction
+      )
 
-            creature.transform.position = Vector3.Lerp(creature.oldPos, creature.nextPos, creature.movementFraction)
+      // reached destination
+      if (creature.movementFraction == 1) {
+        creature.walkAnim.stop()
 
-            if (creature.movementFraction == 1) {
-                creature.walkAnim.stop()
-                
-                creature.SpawnSon()
+        creature.movementPauseTimer = Math.random() * 5
 
-                creature.TargetRandomPosition()
-            }
+        let minDistanceTraveledForBreeding = 3
+        if (
+          Math.random() < 0.5 && // 50% chance of spawning a child
+          Vector3.Distance(creature.oldPos, creature.transform.position) >=
+            minDistanceTraveledForBreeding
+        ) {
+          creature.SpawnChild()
         }
+
+        creature.TargetRandomPosition()
+      }
     }
+  }
 }
 engine.addSystem(new Wander())
 
 // Extra functions
-export function newCenteredRandomPos(){
-    let x = Math.random() * 3
-    let z = Math.random() * 3
+export function newCenteredRandomPos(centerPos: Vector3, radius: number) {
+  let randomPos = new Vector3(Math.random() * radius, 0, Math.random() * radius)
 
-    // if(Math.random() < 0.5)
-    //     x *= -1
+  if (Math.random() < 0.5) randomPos.x *= -1
 
-    // if(Math.random() < 0.5)
-    //     z *= -1
-        
-    let pos = new Vector3(24 + x, 0, 24 + z)
-    
-    return pos 
+  if (Math.random() < 0.5) randomPos.z *= -1
+
+  return Vector3.Add(centerPos, randomPos)
 }
