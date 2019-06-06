@@ -1,7 +1,7 @@
 export enum GeneType {
   speed,
   size,
-  warm,
+  temperature,
   water,
   height,
   COUNT
@@ -26,10 +26,10 @@ export class Genome {
   }
 
   // Based on a mutation probability param
-  Mutate(m) {
+  Mutate() {
     for (var i = 0; i < this.genes.length; i++) {
-      if (Math.random() < m) {
-        this.genes[i] += Math.random() - 0.5
+      if (Math.random() < MutationProb) {
+        this.genes[i] += (Math.random() - 0.5) * MutationMaxSpread
 
         this.genes[i] = Math.max(this.genes[i], 0.1)
       }

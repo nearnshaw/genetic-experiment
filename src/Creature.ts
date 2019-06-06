@@ -1,4 +1,5 @@
 import { Genome, GeneType } from "./Genome"
+import { Environment } from "./Environment";
 
 const MAX_CREATURES_AMOUNT = 10
 
@@ -13,6 +14,7 @@ export class Creature {
   movementPauseTimer: number = 0
   transform: Transform
   genome: Genome
+  environment: Environment
   shape: GLTFShape
   walkAnim: AnimationState
   entity: IEntity
@@ -67,13 +69,18 @@ export class Creature {
       this.genome.genes[GeneType.speed] + (Math.random() - 0.5) * 2
     childCreature.genome.genes[GeneType.size] =
       this.genome.genes[GeneType.size] + (Math.random() - 0.5) * 2 */
-    childCreature.genome.Mutate(0.75)
+    childCreature.genome.Mutate()
     childCreature.transform.scale.x = childCreature.genome.genes[GeneType.size]
     childCreature.transform.scale.y = childCreature.genome.genes[GeneType.size]
     childCreature.transform.scale.z = childCreature.genome.genes[GeneType.size]
 
     childCreature.movementPauseTimer = Math.random() * 5
   }
+  takeDamage(){
+	
+	let temperatureDamage = this.genome.genes[GeneType.temperature] - this.environment.temperature
+	this.health -= temperatureDamage
+}
 }
 export const creatures = engine.getComponentGroup(Creature)
 
@@ -82,8 +89,8 @@ export class DieSLowly implements ISystem {
   update(dt: number) {
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
-      creature.health -= creature.healthDecaySpeed * dt * Math.random()
-
+	  creature.takeDamage()
+	 
       if (creature.health < 0) {
         engine.removeEntity(entity)
         log("RIP")
