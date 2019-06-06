@@ -1,3 +1,5 @@
+import { Genome, GeneType } from "./Genome"
+
 const MAX_CREATURES_AMOUNT = 10
 
 // Components
@@ -7,10 +9,11 @@ export class Creature {
   healthDecaySpeed: number = 3
   oldPos: Vector3 = Vector3.Zero()
   nextPos: Vector3 = Vector3.Zero()
-  movementSpeed: number = Math.max(Math.random() * 0.3, 0.2)
+  // movementSpeed: number = Math.max(Math.random() * 0.3, 0.2)
   movementFraction: number = 1
   movementPauseTimer: number = 0
   transform: Transform
+  genome: Genome
   shape: GLTFShape
   walkAnim: AnimationState
   entity: IEntity
@@ -20,6 +23,9 @@ export class Creature {
 
     this.transform = new Transform()
     entity.addComponent(this.transform)
+
+    this.genome = new Genome([Math.max(Math.random() * 0.3, 0.2), 1])
+    entity.addComponent(this.genome)
 
     this.shape = new GLTFShape("models/BlockDog.glb")
     entity.addComponent(this.shape)
@@ -50,12 +56,22 @@ export class Creature {
     if (creatures.entities.length >= MAX_CREATURES_AMOUNT) return
 
     let sonEntity = new Entity()
-    let sonCreature = new Creature(sonEntity)
-    sonEntity.addComponent(sonCreature)
-    sonCreature.transform.position = this.transform.position
-    sonCreature.TargetRandomPosition()
+    let childCreature = new Creature(sonEntity)
+    sonEntity.addComponent(childCreature)
 
-    sonCreature.movementPauseTimer = Math.random() * 5
+    childCreature.transform.position = this.transform.position
+    childCreature.TargetRandomPosition()
+
+    /* childCreature.genome.genes[GeneType.speed] =
+      this.genome.genes[GeneType.speed] + (Math.random() - 0.5) * 2
+    childCreature.genome.genes[GeneType.size] =
+      this.genome.genes[GeneType.size] + (Math.random() - 0.5) * 2 */
+    childCreature.genome.Mutate(0.75)
+    childCreature.transform.scale.x = childCreature.genome.genes[GeneType.size]
+    childCreature.transform.scale.y = childCreature.genome.genes[GeneType.size]
+    childCreature.transform.scale.z = childCreature.genome.genes[GeneType.size]
+
+    childCreature.movementPauseTimer = Math.random() * 5
   }
 }
 export const creatures = engine.getComponentGroup(Creature)
@@ -90,11 +106,11 @@ export class Wander implements ISystem {
       if (creature.movementFraction >= 1) continue
 
       if (!creature.walkAnim.playing) {
-        creature.walkAnim.speed = creature.movementSpeed
+        creature.walkAnim.speed = creature.genome.genes[GeneType.speed]
         creature.walkAnim.play()
       }
 
-      creature.movementFraction += creature.movementSpeed * dt
+      creature.movementFraction += creature.genome.genes[GeneType.speed] * dt
       if (creature.movementFraction > 1) {
         creature.movementFraction = 1
       }
