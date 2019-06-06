@@ -9,7 +9,6 @@ export class Creature {
   healthDecaySpeed: number = 3
   oldPos: Vector3 = Vector3.Zero()
   nextPos: Vector3 = Vector3.Zero()
-  // movementSpeed: number = Math.max(Math.random() * 0.3, 0.2)
   movementFraction: number = 1
   movementPauseTimer: number = 0
   transform: Transform
@@ -34,9 +33,11 @@ export class Creature {
     this.walkAnim = animator.getClip("Walking_Armature_0")
     entity.addComponent(animator)
 
+    // TODO: Add healthbar component/s here
+
     entity.addComponent(
       new OnClick(() => {
-        // GET GRABBED
+        // TODO: GET GRABBED HERE
       })
     )
 
@@ -142,6 +143,8 @@ export class Wander implements ISystem {
   }
 }
 engine.addSystem(new Wander())
+
+// TODO: Add healthbar component/s update, based on creatures health, here.
 
 // Extra functions
 export function newCenteredRandomPos(centerPos: Vector3, radius: number) {

@@ -1,5 +1,8 @@
 import { Creature } from "./Creature"
 
+// TODO: Instantiate 'experimentation corral' here. We can use the 'memory game' buttons for the environmental control buttons.
+
+// Instantiate first creature
 let adamEntity = new Entity()
 let adam = new Creature(adamEntity)
 adamEntity.addComponent(adam)
