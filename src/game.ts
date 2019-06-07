@@ -1,5 +1,6 @@
 import { Creature } from "./Creature"
 import { Environment } from "./Environment";
+import { ButtonData } from "./button";
 
 // TODO: Instantiate 'experimentation corral' here. We can use the 'memory game' buttons for the environmental control buttons.
 
@@ -73,28 +74,41 @@ engine.addEntity(testCreature)
 
 
 
+let machine = new Entity()
+machine.addComponent(new BoxShape())
+machine.addComponent(new Transform({
+	position: new Vector3(15,0,22),
+	scale: new Vector3(1,1,4)
+}))
+engine.addEntity(machine)
+
+
 let tempUp = new Entity()
 tempUp.addComponent(new Transform({
-	position: new Vector3(15,0,20),
-	scale: new Vector3(0.5,0.5,0.5)
+	position: new Vector3(14.5,0,21),
+	scale: new Vector3(0.5,0.5,0.5),
+	rotation: Quaternion.Euler(0, 0, 90)
 }))
-tempUp.addComponent(new BoxShape())
+tempUp.addComponent(new GLTFShape("models/Button.glb"))
 tempUp.addComponent(hotMaterial)
 tempUp.addComponent(new OnClick(e => {
 	neutral.temperature += 0.2
 	log("new temperature: ", neutral.temperature)
   }))
+tempUp.addComponent(new ButtonData(0.2, 0.4))
 engine.addEntity(tempUp)
 
 let tempDown = new Entity()
 tempDown.addComponent(new Transform({
-	position: new Vector3(15,0,22),
-	scale: new Vector3(0.5,0.5,0.5)
+	position: new Vector3(14.5,0,23),
+	scale: new Vector3(0.5,0.5,0.5),
+	rotation: Quaternion.Euler(0, 0, 90)
 }))
-tempDown.addComponent(new BoxShape())
+tempDown.addComponent(new GLTFShape("models/Button.glb"))
 tempDown.addComponent(coldMaterial)
 tempDown.addComponent(new OnClick(e => {
 	neutral.temperature -= 0.2
 	log("new temperature: ", neutral.temperature)
   }))
+tempDown.addComponent(new ButtonData(0.2, 0.4))
 engine.addEntity(tempDown)
