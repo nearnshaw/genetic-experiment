@@ -43,7 +43,6 @@ export class Creature {
     this.walkAnim = animator.getClip("Walking_Armature_0")
     entity.addComponent(animator)
 
-    // TODO: Add healthbar component/s here
     let healthBarEntity = new Entity();
     healthBarEntity.setParent(entity)
     healthBarEntity.addComponent(new Transform({
