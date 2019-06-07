@@ -47,7 +47,8 @@ export class Creature {
     let healthBarEntity = new Entity();
     healthBarEntity.setParent(entity)
     healthBarEntity.addComponent(new Transform({
-      position: new Vector3(0, 1.5, 0)
+      position: new Vector3(0, 1.5, 0),
+      rotation: Quaternion.Euler(0, 180, 0)
     }))
     this.healthBar = new ProgressBar(healthBarEntity)
     healthBarEntity.addComponent(this.healthBar)
@@ -119,7 +120,7 @@ export class DieSLowly implements ISystem {
 
       creature.takeDamage()
       creature.UpdateNormalizedValue()
-      
+
       if (creature.health < 0) {
         engine.removeEntity(entity)
         log("RIP")

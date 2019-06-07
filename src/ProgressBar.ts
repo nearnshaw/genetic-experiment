@@ -7,6 +7,7 @@ export class ProgressBar {
   parentEntity: IEntity
   entity: IEntity
   foregroundTransform: Transform
+  foregroundEntity: IEntity
   redMaterial: Material
   yellowMaterial: Material
   greenMaterial: Material
@@ -21,29 +22,29 @@ export class ProgressBar {
     this.greenMaterial = new Material()
     this.greenMaterial.albedoColor = Color3.Green()
 
-    this.entity.addComponentOrReplace(this.greenMaterial)
-
     let background = new Entity()
-    engine.addEntity(background)
+    // engine.addEntity(background)
 
     background.setParent(entity)
     background.addComponent(new PlaneShape())
 
     background.addComponent(new Transform({
-      scale: new Vector3(0.82, 0.15, 1)
+      scale: new Vector3(0.82, 0.15, 0.1)
     }))
 
-    let foreground = new Entity()
-    foreground.addComponent(new PlaneShape())
-    foreground.setParent(background)
+    this.foregroundEntity = new Entity()
+    this.foregroundEntity.addComponent(new PlaneShape())
+    this.foregroundEntity.setParent(background)
 
     this.foregroundTransform = new Transform({
       position: new Vector3(0, 0, -0.05),
-      scale: new Vector3(0.95, 0.8, 1)
+      scale: new Vector3(0.95, 0.8, 0.1)
     })
     
-    foreground.addComponent(this.foregroundTransform)
-    engine.addEntity(foreground)
+    this.foregroundEntity.addComponent(this.foregroundTransform)
+
+    this.foregroundEntity.addComponentOrReplace(this.greenMaterial)
+    // engine.addEntity(this.foregroundEntity)
   }
 
   UpdateNormalizedValue(newValue: number){
@@ -53,15 +54,15 @@ export class ProgressBar {
       newValue = 0
 
     if(newValue < 0.3 && this.value >= 0.3){
-      this.entity.removeComponent(Material)
-      this.entity.addComponentOrReplace(this.redMaterial)
+      this.foregroundEntity.removeComponent(Material)
+      this.foregroundEntity.addComponentOrReplace(this.redMaterial)
     } 
     else if(newValue < 0.7 && this.value >= 0.7){
-      this.entity.removeComponent(Material)
-      this.entity.addComponentOrReplace(this.yellowMaterial)
+      this.foregroundEntity.removeComponent(Material)
+      this.foregroundEntity.addComponentOrReplace(this.yellowMaterial)
     } else {
-      this.entity.removeComponent(Material)
-      this.entity.addComponentOrReplace(this.greenMaterial)
+      this.foregroundEntity.removeComponent(Material)
+      this.foregroundEntity.addComponentOrReplace(this.greenMaterial)
     }
 
     this.value = newValue
