@@ -7,7 +7,6 @@ export enum GeneType {
   COUNT
 }
 
-const GENES_AMOUNT = 2
 
 @Component("genome")
 export class Genome {
