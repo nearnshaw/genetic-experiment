@@ -15,6 +15,9 @@ hotMaterial.albedoColor = Color3.Red()
 let coldMaterial = new Material()
 coldMaterial.albedoColor = Color3.Blue()
 
+let neutralMaterial = new Material()
+neutralMaterial.albedoColor = Color3.Gray()
+
 
 // Instanciar environments
 let neutralEnvironment = new Entity()
@@ -97,6 +100,9 @@ tempUp.addComponent(hotMaterial)
 tempUp.addComponent(new OnClick(e => {
 	neutral.temperature += 0.2
 	tempUp.getComponent(ButtonData).pressed = true
+	neutralMaterial.albedoColor.g = 85
+	neutralMaterial.albedoColor.b -= 20
+	neutralMaterial.albedoColor.r += 20
 	log("new temperature: ", neutral.temperature)
   }))
 tempUp.addComponent(new ButtonData(14.5, 14.7))
@@ -113,8 +119,19 @@ tempDown.addComponent(coldMaterial)
 tempDown.addComponent(new OnClick(e => {
 	neutral.temperature -= 0.2
 	tempDown.getComponent(ButtonData).pressed = true
+	neutralMaterial.albedoColor.g = 85
+	neutralMaterial.albedoColor.b -= 20
+	neutralMaterial.albedoColor.r += 20
 	log("new temperature: ", neutral.temperature)
   }))
 tempDown.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempDown)
 
+let thermometer = new Entity()
+thermometer.addComponent(new TextShape("20"))
+thermometer.addComponent(new Transform({
+	position: new Vector3(14.5,2,23),
+	scale: new Vector3(1,1,1),
+	rotation: Quaternion.Euler(90, 0, 0)
+}))
+engine.addEntity(thermometer)
