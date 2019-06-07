@@ -1,5 +1,6 @@
 import { Genome, GeneType } from "./Genome"
 import { ProgressBar } from "./ProgressBar"
+import { Environment } from "./Environment";
 
 const MAX_CREATURES_AMOUNT = 10
 
@@ -15,6 +16,7 @@ export class Creature {
   movementPauseTimer: number = 0
   transform: Transform
   genome: Genome
+  environment: Environment
   shape: GLTFShape
   walkAnim: AnimationState
   entity: IEntity
@@ -25,11 +27,17 @@ export class Creature {
     this.transform = new Transform()
     entity.addComponent(this.transform)
 
-    this.genome = new Genome([Math.max(Math.random() * 0.3, 0.2), 1])
+
+	let speed = Math.max(Math.random() * 0.3, 0.2)
+	let size = Math.max(Math.random() * 0.3, 0.2)
+	let temperature = Math.max(Math.random() * 0.3, 0.2)
+
+    this.genome = new Genome([speed , size, temperature])
     entity.addComponent(this.genome)
 
     this.shape = new GLTFShape("models/BlockDog.glb")
     entity.addComponent(this.shape)
+
 
     let animator = new Animator()
     this.walkAnim = animator.getClip("Walking_Armature_0")
@@ -77,17 +85,29 @@ export class Creature {
       this.genome.genes[GeneType.speed] + (Math.random() - 0.5) * 2
     childCreature.genome.genes[GeneType.size] =
       this.genome.genes[GeneType.size] + (Math.random() - 0.5) * 2 */
-    childCreature.genome.Mutate(0.75)
-    childCreature.transform.scale.x = childCreature.genome.genes[GeneType.size]
-    childCreature.transform.scale.y = childCreature.genome.genes[GeneType.size]
-    childCreature.transform.scale.z = childCreature.genome.genes[GeneType.size]
+	
+	childCreature.genome.CopyFrom(this.genome)
+	childCreature.genome.Mutate()
+    childCreature.transform.scale.x = childCreature.genome.genes[GeneType.temperature]*5
+    childCreature.transform.scale.y = childCreature.genome.genes[GeneType.temperature]*5
+    childCreature.transform.scale.z = childCreature.genome.genes[GeneType.temperature]*5
 
-    childCreature.movementPauseTimer = Math.random() * 5
+	childCreature.environment = this.environment
+
+	childCreature.movementPauseTimer = Math.random() * 5
+	
+	log("new child with temp ", childCreature.genome.genes)
+	//log("new child with temp ", childCreature.genome.genes[GeneType.temperature])
   }
 
   UpdateNormalizedValue(){
     this.healthBar.UpdateNormalizedValue(this.health / 100)
   }
+
+  takeDamage(){	
+    let temperatureDamage = this.genome.genes[GeneType.temperature] - this.environment.temperature
+    this.health -= temperatureDamage
+	}
 }
 export const creatures = engine.getComponentGroup(Creature)
 
@@ -96,9 +116,10 @@ export class DieSLowly implements ISystem {
   update(dt: number) {
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
-      creature.health -= creature.healthDecaySpeed * dt * Math.random()
-      creature.UpdateNormalizedValue()
 
+      creature.takeDamage()
+      creature.UpdateNormalizedValue()
+      
       if (creature.health < 0) {
         engine.removeEntity(entity)
         log("RIP")
