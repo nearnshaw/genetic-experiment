@@ -1,4 +1,5 @@
 import { Genome, GeneType } from "./Genome"
+import { ProgressBar } from "./ProgressBar"
 import { Environment } from "./Environment";
 
 const MAX_CREATURES_AMOUNT = 10
@@ -8,6 +9,7 @@ const MAX_CREATURES_AMOUNT = 10
 export class Creature {
   health: number = 100
   healthDecaySpeed: number = 3
+  healthBar: ProgressBar
   oldPos: Vector3 = Vector3.Zero()
   nextPos: Vector3 = Vector3.Zero()
   movementFraction: number = 1
@@ -42,6 +44,14 @@ export class Creature {
     entity.addComponent(animator)
 
     // TODO: Add healthbar component/s here
+    let healthBarEntity = new Entity();
+    healthBarEntity.setParent(entity)
+    healthBarEntity.addComponent(new Transform({
+      position: new Vector3(0, 1.5, 0)
+    }))
+    this.healthBar = new ProgressBar(healthBarEntity)
+    healthBarEntity.addComponent(this.healthBar)
+    // engine.addEntity(healthBarEntity)
 
     entity.addComponent(
       new OnClick(() => {
@@ -89,10 +99,14 @@ export class Creature {
 	log("new child with temp ", childCreature.genome.genes)
 	//log("new child with temp ", childCreature.genome.genes[GeneType.temperature])
   }
-  takeDamage(){
-	
-	let temperatureDamage = this.genome.genes[GeneType.temperature] - this.environment.temperature
-	this.health -= temperatureDamage
+
+  UpdateNormalizedValue(){
+    this.healthBar.UpdateNormalizedValue(this.health / 100)
+  }
+
+  takeDamage(){	
+    let temperatureDamage = this.genome.genes[GeneType.temperature] - this.environment.temperature
+    this.health -= temperatureDamage
 	}
 }
 export const creatures = engine.getComponentGroup(Creature)
@@ -102,8 +116,10 @@ export class DieSLowly implements ISystem {
   update(dt: number) {
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
-	  creature.takeDamage()
-	 
+
+      creature.takeDamage()
+      creature.UpdateNormalizedValue()
+      
       if (creature.health < 0) {
         engine.removeEntity(entity)
         log("RIP")
