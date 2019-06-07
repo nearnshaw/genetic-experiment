@@ -35,7 +35,7 @@ export class Creature {
     this.genome = new Genome([speed , size, temperature])
     entity.addComponent(this.genome)
 
-    this.shape = new GLTFShape("models/BlockDog.glb")
+    this.shape = new GLTFShape("models/Chippy.glb")
     entity.addComponent(this.shape)
 
 
