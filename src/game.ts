@@ -1,8 +1,11 @@
 import { Creature } from "./Creature"
 import { Environment } from "./Environment";
-import { ButtonData } from "./button";
+import { ButtonData, PushButton } from "./button";
 
-// TODO: Instantiate 'experimentation corral' here. We can use the 'memory game' buttons for the environmental control buttons.
+
+
+// systems
+engine.addSystem(new PushButton())
 
 
 // temp textures
@@ -93,9 +96,10 @@ tempUp.addComponent(new GLTFShape("models/Button.glb"))
 tempUp.addComponent(hotMaterial)
 tempUp.addComponent(new OnClick(e => {
 	neutral.temperature += 0.2
+	tempUp.getComponent(ButtonData).pressed = true
 	log("new temperature: ", neutral.temperature)
   }))
-tempUp.addComponent(new ButtonData(0.2, 0.4))
+tempUp.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempUp)
 
 let tempDown = new Entity()
@@ -108,7 +112,9 @@ tempDown.addComponent(new GLTFShape("models/Button.glb"))
 tempDown.addComponent(coldMaterial)
 tempDown.addComponent(new OnClick(e => {
 	neutral.temperature -= 0.2
+	tempDown.getComponent(ButtonData).pressed = true
 	log("new temperature: ", neutral.temperature)
   }))
-tempDown.addComponent(new ButtonData(0.2, 0.4))
+tempDown.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempDown)
+
