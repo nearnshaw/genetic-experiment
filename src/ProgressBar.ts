@@ -22,23 +22,12 @@ export class ProgressBar {
     this.greenMaterial = new Material()
     this.greenMaterial.albedoColor = Color3.Green()
 
-    let background = new Entity()
-    // engine.addEntity(background)
-
-    background.setParent(entity)
-    background.addComponent(new PlaneShape())
-
-    background.addComponent(new Transform({
-      scale: new Vector3(0.82, 0.15, 0.1)
-    }))
-
     this.foregroundEntity = new Entity()
     this.foregroundEntity.addComponent(new PlaneShape())
-    this.foregroundEntity.setParent(background)
+    this.foregroundEntity.setParent(entity)
 
     this.foregroundTransform = new Transform({
-      position: new Vector3(0, 0, -0.05),
-      scale: new Vector3(0.95, 0.8, 0.1)
+      scale: new Vector3(1, 0.15, 0.1)
     })
     
     this.foregroundEntity.addComponent(this.foregroundTransform)
