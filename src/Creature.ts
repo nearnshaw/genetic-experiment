@@ -1,8 +1,13 @@
 import { Genome, GeneType } from "./Genome"
 import { ProgressBar } from "./ProgressBar"
 import { Environment } from "./Environment";
+import { Pool } from "./ObjectPool";
 
 const MAX_CREATURES_AMOUNT = 10
+
+let chipaPool = new Pool(MAX_CREATURES_AMOUNT)
+
+let basicChipaShape = new GLTFShape("models/Chippy.glb")
 
 // Components
 @Component("creature")
@@ -24,25 +29,39 @@ export class Creature {
   constructor(entity: IEntity) {
     this.entity = entity
 
-    this.transform = new Transform()
-    entity.addComponent(this.transform)
-
+	if (!entity.hasComponent(Transform)){
+		this.transform = new Transform()
+		entity.addComponent(this.transform)
+	} else {
+		this.transform = entity.getComponent(Transform)
+	}
 
     let speed = Math.max(Math.random() * 0.3, 0.2)
     let size = Math.max(Math.random() * 0.3, 0.2)
     let temperature = Math.max(Math.random() * 0.3, 0.2)
 
-    this.genome = new Genome([speed, size, temperature])
-    entity.addComponent(this.genome)
+	if (!entity.hasComponent(Genome)){
+    	this.genome = new Genome([speed, size, temperature])
+		entity.addComponent(this.genome)
+	} else {
+		log("reusing existing ent")
+		this.genome = entity.getComponent(Genome)
+		this.genome.genes = [speed, size, temperature]
+	}
 
-    this.shape = new GLTFShape("models/Chippy.glb")
-    entity.addComponent(this.shape)
+	// TODO :  change depending on case
+    this.shape = basicChipaShape
+    entity.addComponentOrReplace(this.shape)
 
+	if (!entity.hasComponent(Animator)){
+		let animator = new Animator()
+		this.walkAnim = animator.getClip("Walking")
+		entity.addComponent(animator)
+	} else {
+		this.walkAnim = entity.getComponent(Animator).getClip("Walking")
+	}
 
-    let animator = new Animator()
-    this.walkAnim = animator.getClip("Walking")
-    entity.addComponent(animator)
-
+	// TODO  do old healthbars remain w old reused entity from pool?
     let healthBarEntity = new Entity();
     healthBarEntity.setParent(entity)
     healthBarEntity.addComponent(new Transform({
@@ -53,7 +72,8 @@ export class Creature {
     healthBarEntity.addComponent(this.healthBar)
     // engine.addEntity(healthBarEntity)
 
-    entity.addComponent(
+	
+    entity.addComponentOrReplace(
       new OnClick(() => {
         // TODO: GET GRABBED HERE
       })
@@ -72,11 +92,12 @@ export class Creature {
   }
 
   SpawnChild() {
-    if (creatures.entities.length >= MAX_CREATURES_AMOUNT) return
-
-    let sonEntity = new Entity()
+    //if (creatures.entities.length >= MAX_CREATURES_AMOUNT) return
+	let sonEntity = chipaPool.getEntity()
+    if (!sonEntity) return
+    
     let childCreature = new Creature(sonEntity)
-    sonEntity.addComponent(childCreature)
+    sonEntity.addComponentOrReplace(childCreature)
 
     childCreature.transform.position = this.transform.position
     childCreature.TargetRandomPosition()
@@ -145,7 +166,7 @@ export class Wander implements ISystem {
 
       if (!creature.walkAnim.playing) {
         creature.walkAnim.speed = creature.genome.genes[GeneType.speed]
-        creature.walkAnim.play()
+        creature.walkAnim.playing = true
       }
 
       creature.movementFraction += creature.genome.genes[GeneType.speed] * dt

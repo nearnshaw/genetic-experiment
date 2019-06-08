@@ -2,11 +2,13 @@ import { Creature } from "./Creature"
 import { Environment } from "./Environment";
 import { ButtonData, PushButton } from "./button";
 import { Genome, GeneType } from "./Genome";
+import { ExpireDead } from "./Expire";
 
 
 
 // systems
 engine.addSystem(new PushButton())
+engine.addSystem(new ExpireDead())
 
 
 // temp textures
