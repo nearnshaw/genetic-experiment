@@ -1,6 +1,7 @@
 import { Creature } from "./Creature"
 import { Environment } from "./Environment";
 import { ButtonData, PushButton } from "./button";
+import { Genome, GeneType } from "./Genome";
 
 
 
@@ -67,6 +68,8 @@ adamEntity.addComponent(adam)
 adam.transform.position = new Vector3(24, 0, 24)
 adam.TargetRandomPosition()
 adam.environment = neutral
+// hard coded so that adam always lives at the start
+adam.genome.genes[GeneType.temperature] = 0.5
 
 let testCreature = new Entity()
 testCreature.addComponent(
@@ -98,12 +101,18 @@ tempUp.addComponent(new Transform({
 tempUp.addComponent(new GLTFShape("models/Button.glb"))
 tempUp.addComponent(hotMaterial)
 tempUp.addComponent(new OnClick(e => {
-	neutral.temperature += 0.2
+	neutral.temperature += 0.1
 	tempUp.getComponent(ButtonData).pressed = true
-	neutralMaterial.albedoColor.g = 85
-	neutralMaterial.albedoColor.b -= 20
-	neutralMaterial.albedoColor.r += 20
-	log("new temperature: ", neutral.temperature)
+	//neutralMaterial.albedoColor.g = 85
+	let b = neutralMaterial.albedoColor.b
+	let r = neutralMaterial.albedoColor.r
+	neutralMaterial.albedoColor = new Color3(r +.6, .5, b - .6)
+	// neutralEnvironment.removeComponent(Material)
+	neutralEnvironment.addComponentOrReplace(neutralMaterial)
+
+	let tempInC  = convertToC(neutral.temperature).toString()
+	temperatureText.value = tempInC
+	log("temperature: ", tempInC, " normalizedL ", neutral.temperature)
   }))
 tempUp.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempUp)
@@ -117,21 +126,34 @@ tempDown.addComponent(new Transform({
 tempDown.addComponent(new GLTFShape("models/Button.glb"))
 tempDown.addComponent(coldMaterial)
 tempDown.addComponent(new OnClick(e => {
-	neutral.temperature -= 0.2
+	neutral.temperature -= 0.1
 	tempDown.getComponent(ButtonData).pressed = true
-	neutralMaterial.albedoColor.g = 85
-	neutralMaterial.albedoColor.b -= 20
-	neutralMaterial.albedoColor.r += 20
-	log("new temperature: ", neutral.temperature)
+	//neutralMaterial.albedoColor.g = 85
+	let b = neutralMaterial.albedoColor.b
+	let r = neutralMaterial.albedoColor.r
+	neutralMaterial.albedoColor = new Color3(r -.6, .5, b + .6)
+	// neutralEnvironment.removeComponent(Material)
+	neutralEnvironment.addComponentOrReplace(neutralMaterial)
+	let tempInC  = convertToC(neutral.temperature).toString()
+	temperatureText.value = tempInC
+
+	log("temperature: ", tempInC, " normalizedL ", neutral.temperature)
   }))
 tempDown.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempDown)
 
 let thermometer = new Entity()
-thermometer.addComponent(new TextShape("20"))
+let temperatureText = new TextShape("EEEEEEEEEEEEEEEE")
+temperatureText.fontSize = 30
+thermometer.addComponent(temperatureText)
 thermometer.addComponent(new Transform({
-	position: new Vector3(14.5,2,23),
-	scale: new Vector3(1,1,1),
+	position: new Vector3(14.5, 2 ,20),
 	rotation: Quaternion.Euler(90, 0, 0)
 }))
 engine.addEntity(thermometer)
+
+
+function convertToC(temperature: number){
+	let c = Scalar.Denormalize(temperature, -40, 90)
+	return c
+}

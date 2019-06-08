@@ -106,8 +106,9 @@ export class Creature {
   }
 
   takeDamage(){	
-    let temperatureDamage = this.genome.genes[GeneType.temperature] - this.environment.temperature
-    this.health -= temperatureDamage
+    let temperatureDif = Math.abs(this.genome.genes[GeneType.temperature] - this.environment.temperature)*10
+	let temperatureDamage = (temperatureDif* temperatureDif) * DamageCoeff
+	this.health -= temperatureDamage
 	}
 }
 export const creatures = engine.getComponentGroup(Creature)

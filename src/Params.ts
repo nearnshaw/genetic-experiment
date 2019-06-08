@@ -4,8 +4,13 @@
 let MutationProb: number = 0.7
 // 0 TO 1   how likely each genome will have some level of mutation
 
-let MutationMaxSpread: number = 1
+let MutationMaxSpread: number = 0.5
 //  1 ->  -0.5 TO + 0.5
+
+
+// Coefficient to multiply damage done on every frame
+let DamageCoeff = 0.05
+
 
 
 // INITIAL NUMBER OF CREATURES
