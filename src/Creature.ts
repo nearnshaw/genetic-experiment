@@ -5,7 +5,7 @@ import { Pool } from "./ObjectPool"
 
 const MAX_CREATURES_AMOUNT = 10
 
-let chipaPool = new Pool(MAX_CREATURES_AMOUNT)
+export let chipaPool = new Pool(MAX_CREATURES_AMOUNT)
 
 let basicChipaShape = new GLTFShape("models/Chippy.glb")
 
@@ -84,6 +84,21 @@ export class Creature {
     healthBarEntity.addComponent(this.healthBar)
     // engine.addEntity(healthBarEntity)
 
+    let nameTextEntity = new Entity()
+    nameTextEntity.setParent(healthBarEntity)
+    let nameText = new TextShape(RandomizeName())
+    nameText.fontSize = 3
+    nameText.color = Color3.Teal()
+    nameText.hTextAlign = "center"
+    nameText.vTextAlign = "center"
+    nameTextEntity.addComponent(nameText)
+    nameTextEntity.addComponent(
+      new Transform({
+        position: new Vector3(-7.6, -3, -2.5)
+      })
+    )
+    // engine.addEntity(nameTextEntity)
+
     entity.addComponentOrReplace(
       new OnClick(() => {
         // TODO: GET GRABBED HERE
@@ -103,7 +118,8 @@ export class Creature {
   }
 
   SpawnChild() {
-    //if (creatures.entities.length >= MAX_CREATURES_AMOUNT) return
+    if (creatures.entities.length >= MAX_CREATURES_AMOUNT) return
+
     let sonEntity = chipaPool.getEntity()
     if (!sonEntity) return
 
@@ -140,7 +156,7 @@ export class Creature {
     //log("new child with temp ", childCreature.genome.genes[GeneType.temperature])
   }
 
-  UpdateNormalizedValue() {
+  UpdateHealthbar() {
     this.healthBar.UpdateNormalizedValue(this.health / 100)
   }
 
@@ -151,6 +167,10 @@ export class Creature {
       ) * 10
     let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
     this.health -= temperatureDamage
+
+    if (this.health < 0) this.health = 0
+
+    this.UpdateHealthbar()
   }
 }
 export const creatures = engine.getComponentGroup(Creature)
@@ -162,11 +182,10 @@ export class DieSLowly implements ISystem {
       let creature = entity.getComponent(Creature)
 
       creature.takeDamage()
-      creature.UpdateNormalizedValue()
-
-      if (creature.health < 0) {
-        engine.removeEntity(entity)
+      if (creature.health <= 0) {
         log("RIP")
+        ClearCreatureEntity(entity)
+        engine.removeEntity(entity)
       }
     }
   }
@@ -210,7 +229,7 @@ export class Wander implements ISystem {
 
         let minDistanceTraveledForBreeding = 3
         if (
-          Math.random() < 0.85 && // 85% chance of spawning a child
+          Math.random() < 0.7 && // 70% chance of spawning a child
           Vector3.Distance(creature.oldPos, creature.transform.position) >=
             minDistanceTraveledForBreeding
         ) {
@@ -224,8 +243,6 @@ export class Wander implements ISystem {
 }
 engine.addSystem(new Wander())
 
-// TODO: Add healthbar component/s update, based on creatures health, here.
-
 // Extra functions
 export function newCenteredRandomPos(centerPos: Vector3, radius: number) {
   let randomPos = new Vector3(Math.random() * radius, 0, Math.random() * radius)
@@ -235,4 +252,50 @@ export function newCenteredRandomPos(centerPos: Vector3, radius: number) {
   if (Math.random() < 0.5) randomPos.z *= -1
 
   return Vector3.Add(centerPos, randomPos)
+}
+
+function RandomizeName() {
+  let randomNumber = Math.random()
+
+  if (randomNumber < 0.1) {
+    return "Pumbi"
+  } else if (randomNumber < 0.1) {
+    return "Pumpi"
+  } else if (randomNumber < 0.15) {
+    return "Bimbo"
+  } else if (randomNumber < 0.2) {
+    return "Bimbi"
+  } else if (randomNumber < 0.3) {
+    return "Plinky"
+  } else if (randomNumber < 0.4) {
+    return "Sputnik"
+  } else if (randomNumber < 0.5) {
+    return "Falchor"
+  } else if (randomNumber < 0.6) {
+    return "Kinky"
+  } else if (randomNumber < 0.7) {
+    return "Slimy"
+  } else if (randomNumber < 0.8) {
+    return "Chippy"
+  } else if (randomNumber < 0.85) {
+    return "Chiffy"
+  } else if (randomNumber < 0.9) {
+    return "Chippu"
+  } else if (randomNumber < 0.95) {
+    return "Kurtnus"
+  } else {
+    return "Kax"
+  }
+}
+
+function ClearCreatureEntity(entity: IEntity) {
+  for (const key in entity.components) {
+    entity.removeComponent(entity.components[key])
+  }
+
+  for (const key in entity.children) {
+    ClearCreatureEntity(entity.children[key])
+
+    engine.removeEntity(entity.children[key])
+  }
 }
