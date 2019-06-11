@@ -112,7 +112,7 @@ tempUp.addComponent(
     neutralEnvironment.addComponentOrReplace(neutralMaterial)
 
     let tempInC = convertToC(neutral.temperature).toString()
-    temperatureText.value = tempInC
+    temperatureText.value = tempInC + "°"
     log("temperature: ", tempInC, " normalizedL ", neutral.temperature)
   })
 )
@@ -140,7 +140,7 @@ tempDown.addComponent(
     // neutralEnvironment.removeComponent(Material)
     neutralEnvironment.addComponentOrReplace(neutralMaterial)
     let tempInC = convertToC(neutral.temperature).toString()
-    temperatureText.value = tempInC
+    temperatureText.value = tempInC + "°"
 
     log("temperature: ", tempInC, " normalizedL ", neutral.temperature)
   })
@@ -149,9 +149,12 @@ tempDown.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempDown)
 
 let thermometer = new Entity()
-let temperatureText = new TextShape("10" + "°")
+let temperatureText = new TextShape(
+  convertToC(neutral.temperature).toString() + "°"
+)
 temperatureText.fontSize = 5
-// temperatureText.hTextAlign = "center"
+temperatureText.hTextAlign = "center"
+temperatureText.vTextAlign = "center"
 thermometer.addComponent(temperatureText)
 thermometer.addComponent(
   new Transform({

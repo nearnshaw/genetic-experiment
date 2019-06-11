@@ -15,7 +15,6 @@ export class Pool {
     for (let i = 0; i < this.pool.length; i++) {
       const entity = this.pool[i]
       if (!entity.alive) {
-        log("re-used entity")
         return entity
       }
     }
@@ -28,7 +27,6 @@ export class Pool {
   }
 
   newEntity() {
-    log("created entity")
     const instance = new Entity()
     instance.name = (Math.random() * 10000).toString()
     this.pool.push(instance)
