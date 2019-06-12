@@ -97,6 +97,8 @@ export class Creature {
       })
     ) */
 
+    this.UpdateScale()
+
     engine.addEntity(entity)
   }
 
@@ -142,6 +144,7 @@ export class Creature {
   }
 
   UpdateScale(){
+    // We lerp the creature's scale from MinCreatureScale to MaxCreatureScale, mapped to the 2 temp extremes: -100 to 100
     let normalizedTemperatureHalf = Scalar.Lerp(0, 0.5, Math.abs(this.genome.genes[GeneType.temperature]) / 100) * (this.genome.genes[GeneType.temperature] > 0 ? 1 : -1)
 
     let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, 0.5 + normalizedTemperatureHalf)
@@ -156,7 +159,6 @@ export class Creature {
   }
 
   UpdateTemperatureText() {
-    // this.temperatureText.value = this.genome.genes[GeneType.temperature].toPrecision(1) + "°"
     this.temperatureText.value = this.genome.genes[GeneType.temperature] + "°"
 
     if(this.GetTemperatureDif() > MinTemperatureDiffForDamage)
