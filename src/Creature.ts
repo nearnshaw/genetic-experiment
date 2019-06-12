@@ -26,12 +26,7 @@ export class Creature {
   walkAnim: AnimationState
   entity: IEntity
 
-  constructor(
-    entity: IEntity,
-    originalSpeed: number = 0,
-    originalSize: number = 0,
-    originalTemperature: number = 0
-  ) {
+  constructor(entity: IEntity) {
     this.entity = entity
 
     if (!entity.hasComponent(Transform)) {
@@ -41,14 +36,9 @@ export class Creature {
       this.transform = entity.getComponent(Transform)
     }
 
-    let speed =
-      originalSpeed != 0 ? originalSpeed : Math.max(Math.random() * 0.3, 0.2)
-    let size =
-      originalSize != 0 ? originalSize : Math.max(Math.random() * 0.3, 0.2)
-    let temperature =
-      originalTemperature != 0
-        ? originalTemperature
-        : Math.max(Math.random() * 0.3, 0.2)
+    let speed = Math.max(Math.random() * 0.3, 0.2)
+    let size = Math.max(Math.random() * 0.3, 0.2)
+    let temperature = Math.max(Math.random() * 0.3, 0.2)
 
     if (!entity.hasComponent(Genome)) {
       this.genome = new Genome([speed, size, temperature])
@@ -71,7 +61,6 @@ export class Creature {
       this.walkAnim = entity.getComponent(Animator).getClip("Walking")
     }
 
-    // TODO  do old healthbars remain w old reused entity from pool?
     let healthBarEntity = new Entity()
     healthBarEntity.setParent(entity)
     healthBarEntity.addComponent(
@@ -123,12 +112,7 @@ export class Creature {
     let sonEntity = chipaPool.getEntity()
     if (!sonEntity) return
 
-    let childCreature = new Creature(
-      sonEntity,
-      this.genome[GeneType.speed],
-      this.genome[GeneType.size],
-      this.genome[GeneType.temperature]
-    )
+    let childCreature = new Creature(sonEntity)
     sonEntity.addComponentOrReplace(childCreature)
 
     childCreature.transform.position = this.transform.position
