@@ -1,9 +1,6 @@
 export enum GeneType {
   speed,
-  size,
-  temperature,
-  water,
-  height,
+  temperature, // -100 to 100
   COUNT
 }
 
@@ -28,9 +25,8 @@ export class Genome {
   Mutate() {
     for (var i = 0; i < this.genes.length; i++) {
       if (Math.random() < MutationProb) {
-        this.genes[i] += (Math.random() - 0.5) * MutationMaxSpread
-
-        this.genes[i] = Math.max(this.genes[i], 0.1)
+        this.genes[i] += (Math.random() - 0.5) * MutationMaxSpreads[i]
+        this.genes[i] = +this.genes[i].toFixed(2)
       }
     }
   }

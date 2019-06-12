@@ -1,4 +1,4 @@
-import { Creature, chipaPool } from "./Creature"
+import { Creature, chipaPool, creatures } from "./Creature"
 import { Environment } from "./Environment"
 import { ButtonData, PushButton } from "./button"
 import { GeneType } from "./Genome"
@@ -6,19 +6,9 @@ import { GeneType } from "./Genome"
 // systems
 engine.addSystem(new PushButton())
 
-// temp textures
-let hotMaterial = new Material()
-hotMaterial.albedoColor = Color3.Red()
-
-let coldMaterial = new Material()
-coldMaterial.albedoColor = Color3.Blue()
-
-let neutralMaterial = new Material()
-neutralMaterial.albedoColor = Color3.Gray()
-
 // Instanciar environments
 let neutralEnvironment = new Entity()
-let neutral = new Environment(0.5)
+let neutral = new Environment(0)
 neutralEnvironment.addComponent(neutral)
 neutralEnvironment.addComponent(new PlaneShape())
 neutralEnvironment.addComponent(
@@ -32,7 +22,7 @@ engine.addEntity(neutralEnvironment)
 
 // Instanciar environments
 let hotEnvironment = new Entity()
-let hot = new Environment(1)
+let hot = new Environment(100)
 hotEnvironment.addComponent(hot)
 hotEnvironment.addComponent(new PlaneShape())
 hotEnvironment.addComponent(
@@ -47,7 +37,7 @@ engine.addEntity(hotEnvironment)
 
 // Instanciar environments
 let coldEnvironment = new Entity()
-let cold = new Environment(0)
+let cold = new Environment(-100)
 coldEnvironment.addComponent(cold)
 coldEnvironment.addComponent(new PlaneShape())
 coldEnvironment.addComponent(
@@ -67,8 +57,8 @@ adamEntity.addComponent(adam)
 adam.transform.position = new Vector3(24, 0, 24)
 adam.TargetRandomPosition()
 adam.environment = neutral
-// hard coded so that adam always lives at the start
-adam.genome.genes[GeneType.temperature] = 0.5
+adam.UpdateTemperatureText()    
+adam.UpdateScale()
 
 let testCreature = new Entity()
 testCreature.addComponent(
@@ -102,7 +92,9 @@ tempUp.addComponent(new GLTFShape("models/Button.glb"))
 tempUp.addComponent(hotMaterial)
 tempUp.addComponent(
   new OnClick(e => {
-    neutral.temperature += 0.1
+    neutral.temperature += TemperatureButtonValue
+    if (neutral.temperature > 100) neutral.temperature = 100
+
     tempUp.getComponent(ButtonData).pressed = true
     //neutralMaterial.albedoColor.g = 85
     let b = neutralMaterial.albedoColor.b
@@ -111,9 +103,16 @@ tempUp.addComponent(
     // neutralEnvironment.removeComponent(Material)
     neutralEnvironment.addComponentOrReplace(neutralMaterial)
 
-    let tempInC = convertToC(neutral.temperature).toString()
+    let tempInC = neutral.temperature.toString()
     temperatureText.value = tempInC + "°"
-    log("temperature: ", tempInC, " normalizedL ", neutral.temperature)
+
+    for (let entity of creatures.entities) {
+      let creature = entity.getComponent(Creature)
+
+      creature.UpdateTemperatureText()
+    }
+
+    log("temperature: " + neutral.temperature)
   })
 )
 tempUp.addComponent(new ButtonData(14.5, 14.7))
@@ -131,7 +130,9 @@ tempDown.addComponent(new GLTFShape("models/Button.glb"))
 tempDown.addComponent(coldMaterial)
 tempDown.addComponent(
   new OnClick(e => {
-    neutral.temperature -= 0.1
+    neutral.temperature -= TemperatureButtonValue
+    if (neutral.temperature < -100) neutral.temperature = -100
+
     tempDown.getComponent(ButtonData).pressed = true
     //neutralMaterial.albedoColor.g = 85
     let b = neutralMaterial.albedoColor.b
@@ -139,19 +140,24 @@ tempDown.addComponent(
     neutralMaterial.albedoColor = new Color3(r - 0.6, 0.5, b + 0.6)
     // neutralEnvironment.removeComponent(Material)
     neutralEnvironment.addComponentOrReplace(neutralMaterial)
-    let tempInC = convertToC(neutral.temperature).toString()
+    
+    let tempInC = neutral.temperature.toString()
     temperatureText.value = tempInC + "°"
 
-    log("temperature: ", tempInC, " normalizedL ", neutral.temperature)
+    for (let entity of creatures.entities) {
+      let creature = entity.getComponent(Creature)
+
+      creature.UpdateTemperatureText()
+    }
+
+    log("temperature: " + neutral.temperature)
   })
 )
 tempDown.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempDown)
 
 let thermometer = new Entity()
-let temperatureText = new TextShape(
-  convertToC(neutral.temperature).toString() + "°"
-)
+let temperatureText = new TextShape(neutral.temperature.toString() + "°")
 temperatureText.fontSize = 5
 temperatureText.hTextAlign = "center"
 temperatureText.vTextAlign = "center"
@@ -163,8 +169,3 @@ thermometer.addComponent(
   })
 )
 engine.addEntity(thermometer)
-
-function convertToC(temperature: number) {
-  let c = Scalar.Denormalize(temperature, -40, 90)
-  return c
-}

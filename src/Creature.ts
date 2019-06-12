@@ -15,6 +15,7 @@ export class Creature {
   health: number = 100
   healthDecaySpeed: number = 3
   healthBar: ProgressBar
+  name: string
   oldPos: Vector3 = Vector3.Zero()
   nextPos: Vector3 = Vector3.Zero()
   movementFraction: number = 1
@@ -23,43 +24,29 @@ export class Creature {
   genome: Genome
   environment: Environment
   shape: GLTFShape
+  temperatureText: TextShape
   walkAnim: AnimationState
   entity: IEntity
 
   constructor(entity: IEntity) {
     this.entity = entity
 
-    if (!entity.hasComponent(Transform)) {
-      this.transform = new Transform()
-      entity.addComponent(this.transform)
-    } else {
-      this.transform = entity.getComponent(Transform)
-    }
+    this.transform = new Transform()
+    entity.addComponent(this.transform)
 
-    let speed = Math.max(Math.random() * 0.3, 0.2)
-    let size = Math.max(Math.random() * 0.3, 0.2)
-    let temperature = Math.max(Math.random() * 0.3, 0.2)
+    let speed = 0.5
+    let temperature = 0
 
-    if (!entity.hasComponent(Genome)) {
-      this.genome = new Genome([speed, size, temperature])
-      entity.addComponent(this.genome)
-    } else {
-      log("reusing existing ent")
-      this.genome = entity.getComponent(Genome)
-      this.genome.genes = [speed, size, temperature]
-    }
+    this.genome = new Genome([speed, temperature])
+    entity.addComponent(this.genome)
 
     // TODO :  change depending on case
     this.shape = basicChipaShape
     entity.addComponentOrReplace(this.shape)
 
-    if (!entity.hasComponent(Animator)) {
-      let animator = new Animator()
-      this.walkAnim = animator.getClip("Walking")
-      entity.addComponent(animator)
-    } else {
-      this.walkAnim = entity.getComponent(Animator).getClip("Walking")
-    }
+    let animator = new Animator()
+    this.walkAnim = animator.getClip("Walking")
+    entity.addComponent(animator)
 
     let healthBarEntity = new Entity()
     healthBarEntity.setParent(entity)
@@ -75,7 +62,8 @@ export class Creature {
 
     let nameTextEntity = new Entity()
     nameTextEntity.setParent(healthBarEntity)
-    let nameText = new TextShape(RandomizeName())
+    this.name = RandomizeName()
+    let nameText = new TextShape(this.name)
     nameText.fontSize = 3
     nameText.color = Color3.Teal()
     nameText.hTextAlign = "center"
@@ -83,16 +71,31 @@ export class Creature {
     nameTextEntity.addComponent(nameText)
     nameTextEntity.addComponent(
       new Transform({
-        position: new Vector3(-7.6, -3, -2.5)
+        position: new Vector3(-7.6, -2.8, -2.65)
       })
     )
     // engine.addEntity(nameTextEntity)
 
-    entity.addComponentOrReplace(
+    let temperatureTextEntity = new Entity()
+    temperatureTextEntity.setParent(healthBarEntity)
+    this.temperatureText = new TextShape(temperature + "°")
+    this.temperatureText.fontSize = 2.5
+    this.temperatureText.color = Color3.Green()
+    this.temperatureText.hTextAlign = "center"
+    this.temperatureText.vTextAlign = "center"
+    temperatureTextEntity.addComponent(this.temperatureText)
+    temperatureTextEntity.addComponent(
+      new Transform({
+        position: new Vector3(-7.6, -3.1, -2.65)
+      })
+    )
+    // engine.addEntity(temperatureTextEntity)
+
+    /* entity.addComponentOrReplace(
       new OnClick(() => {
         // TODO: GET GRABBED HERE
       })
-    )
+    ) */
 
     engine.addEntity(entity)
   }
@@ -115,6 +118,8 @@ export class Creature {
     let childCreature = new Creature(sonEntity)
     sonEntity.addComponentOrReplace(childCreature)
 
+    childCreature.environment = this.environment
+
     childCreature.transform.position = this.transform.position
     childCreature.TargetRandomPosition()
 
@@ -124,37 +129,60 @@ export class Creature {
       this.genome.genes[GeneType.size] + (Math.random() - 0.5) * 2 */
 
     childCreature.genome.CopyFrom(this.genome)
-    childCreature.genome.Mutate()
-    childCreature.transform.scale.x =
-      childCreature.genome.genes[GeneType.temperature] * 2
-    childCreature.transform.scale.y =
-      childCreature.genome.genes[GeneType.temperature] * 2
-    childCreature.transform.scale.z =
-      childCreature.genome.genes[GeneType.temperature] * 2
-
-    childCreature.environment = this.environment
+    childCreature.Mutate()
 
     childCreature.movementPauseTimer = Math.random() * 5
+  }
 
-    log("new child with temp ", childCreature.genome.genes)
-    //log("new child with temp ", childCreature.genome.genes[GeneType.temperature])
+  Mutate() {
+    this.genome.Mutate()
+    this.UpdateTemperatureText()
+    
+    this.UpdateScale()
+  }
+
+  UpdateScale(){
+    let normalizedTemperatureHalf = Scalar.Lerp(0, 0.5, Math.abs(this.genome.genes[GeneType.temperature]) / 100) * (this.genome.genes[GeneType.temperature] > 0 ? 1 : -1)
+
+    let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, 0.5 + normalizedTemperatureHalf)
+
+    this.transform.scale.x = size
+    this.transform.scale.y = size
+    this.transform.scale.z = size
   }
 
   UpdateHealthbar() {
     this.healthBar.UpdateNormalizedValue(this.health / 100)
   }
 
+  UpdateTemperatureText() {
+    // this.temperatureText.value = this.genome.genes[GeneType.temperature].toPrecision(1) + "°"
+    this.temperatureText.value = this.genome.genes[GeneType.temperature] + "°"
+
+    if(this.GetTemperatureDif() > MinTemperatureDiffForDamage)
+      this.temperatureText.color = Color3.Red()
+    else
+      this.temperatureText.color = Color3.Green()
+  }
+
   takeDamage() {
-    let temperatureDif =
-      Math.abs(
-        this.genome.genes[GeneType.temperature] - this.environment.temperature
-      ) * 10
-    let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
-    this.health -= temperatureDamage
+    let temperatureDif = this.GetTemperatureDif()
 
-    if (this.health < 0) this.health = 0
+    if (temperatureDif > MinTemperatureDiffForDamage) {
+      let temperatureDamage = temperatureDif * DamageCoeff
+      this.health -= temperatureDamage
 
-    this.UpdateHealthbar()
+      if (this.health < 0) this.health = 0
+
+      this.UpdateHealthbar()
+    }
+  }
+
+  GetTemperatureDif(){
+    if(!this.environment)
+      return 0
+
+    return Math.abs(this.environment.temperature - this.genome.genes[GeneType.temperature])
   }
 }
 export const creatures = engine.getComponentGroup(Creature)
@@ -189,12 +217,13 @@ export class Wander implements ISystem {
 
       if (creature.movementFraction >= 1) continue
 
+      let speed = Math.abs(creature.genome.genes[GeneType.speed])
       if (!creature.walkAnim.playing) {
-        creature.walkAnim.speed = creature.genome.genes[GeneType.speed]
+        creature.walkAnim.speed = speed
         creature.walkAnim.playing = true
       }
 
-      creature.movementFraction += creature.genome.genes[GeneType.speed] * dt
+      creature.movementFraction += speed * dt
       if (creature.movementFraction > 1) {
         creature.movementFraction = 1
       }
