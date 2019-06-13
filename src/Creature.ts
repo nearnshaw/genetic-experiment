@@ -353,6 +353,24 @@ let eyes_nerdor = new GLTFShape("models/Creature/Eyes_Nerdor.glb")
 let eyes_spider = new GLTFShape("models/Creature/Eyes_Spider.glb")
 
 
+// mouth
+let mouth_acuatic = new GLTFShape("models/Creature/Mouth_Acuatic.glb")
+let mouth_smile = new GLTFShape("models/Creature/Mouth_Smile.glb")
+let mouth_fangs = new GLTFShape("models/Creature/Mouth_Fangs.glb")
+
+// nose
+let nose_bear = new GLTFShape("models/Creature/Nose_Bear.glb")
+let nose_horn = new GLTFShape("models/Creature/Nose_Horn.glb")
+
+// tail
+let tail_acuatic = new GLTFShape("models/Creature/Tail_Acuatic.glb")
+let tail_pig = new GLTFShape("models/Creature/Tail_Pig.glb")
+
+// wings
+let wings_acuatic = new GLTFShape("models/Creature/Wings_Acuatic.glb")
+let wings_bat = new GLTFShape("models/Creature/Wings_Bat.glb")
+let wings_dragon = new GLTFShape("models/Creature/Wings_Dragon.glb")
+
 
 export function BuildBody(creature: IEntity){
 	let genes = creature.getComponent(Genome).genes
@@ -426,24 +444,58 @@ export function BuildBody(creature: IEntity){
 	}	
 
 
+	let mouthGene = genes[GeneType.mouth]
+	let mouth = new Entity()
+	mouth.setParent(creature)
+	
+	if (mouthGene < 0.2) {
+		mouth.addComponent(mouth_acuatic)
+	  } else if (mouthGene < 0.4) {
+		// no mouth
+	  } else if (mouthGene < 0.6) {
+		mouth.addComponent(mouth_smile)
+	  } else if (mouthGene < 0.8) {
+		mouth.addComponent(mouth_fangs)
+	}
 
-	// mouth
-	// nose
-	// tail
-	// wings
+	let noseGene = genes[GeneType.nose]
+	let nose = new Entity()
+	nose.setParent(creature)
+	
+	if (noseGene < 0.3) {
+		nose.addComponent(nose_bear)
+	  } else if (noseGene < 0.7) {
+		// no nose
+	  } else if (noseGene <= 1) {
+		nose.addComponent(nose_horn)
+	}
 
-	// let temperature = genes[GeneType.temperature]
-	// let body = new Entity()
-	// body.setParent(creature)
-	// body.addComponent(new Transform({}))
+	let tailGene = genes[GeneType.tail]
+	let tail = new Entity()
+	tail.setParent(creature)
+	
+	if (tailGene < 0.3) {
+		tail.addComponent(tail_acuatic)
+	  } else if (tailGene < 0.7) {
+		// no tail
+	  } else if (tailGene <= 1) {
+		tail.addComponent(tail_pig)
+	}
 
-	// if (temperature < 0.75) {
-		
-	//   } else if (temperature < 0.25) {
-		
-	//   } else if (temperature < -0.25) {
+	let wingsGene = genes[GeneType.wings]
+	let wings = new Entity()
+	wings.setParent(creature)
+	
+	if (wingsGene < 0.2) {
+		wings.addComponent(wings_acuatic)
+	  } else if (wingsGene < 0.6) {
+		// no mouth
+	  } else if (wingsGene < 0.8) {
+		wings.addComponent(wings_bat)
+	  } else if (wingsGene <= 1) {
+		wings.addComponent(wings_dragon)
+	}
 
-	//   } else if (temperature < -0.75) {
 
-	// }
+
 }
