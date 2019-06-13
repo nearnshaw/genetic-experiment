@@ -76,6 +76,7 @@ export class Creature {
     nameText.color = Color3.Teal()
     nameText.hTextAlign = "center"
     nameText.vTextAlign = "center"
+    nameText.billboard = true
     nameTextEntity.addComponent(nameText)
     nameTextEntity.addComponent(
       new Transform({
@@ -91,6 +92,7 @@ export class Creature {
     this.temperatureText.color = Color3.Green()
     this.temperatureText.hTextAlign = "center"
     this.temperatureText.vTextAlign = "center"
+    this.temperatureText.billboard = true
     temperatureTextEntity.addComponent(this.temperatureText)
     temperatureTextEntity.addComponent(
       new Transform({

@@ -20,7 +20,7 @@ let MutationMaxSpreads: number[] = [
 let TemperatureButtonValue = MutationMaxSpreads[1] / 2
 
 // Coefficient to multiply damage done on every frame
-let DamageCoeff = 0.001
+let DamageCoeff = 0.005
 
 // Minimum temperature diff for the creature to start receiving damage
 let MinTemperatureDiffForDamage = 8
