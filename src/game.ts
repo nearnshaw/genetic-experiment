@@ -1,6 +1,6 @@
 import { Creature, chipaPool, creatures } from "./Creature"
 import { Environment } from "./Environment"
-import { ButtonData, PushButton } from "./button"
+import { ButtonData, PushButton } from "./Button"
 import { GeneType } from "./Genome"
 
 // systems
@@ -8,7 +8,7 @@ engine.addSystem(new PushButton())
 
 // Instanciar environments
 let neutralEnvironment = new Entity()
-let neutral = new Environment(0)
+let neutral = new Environment(20)
 neutralEnvironment.addComponent(neutral)
 neutralEnvironment.addComponent(new PlaneShape())
 neutralEnvironment.addComponent(

@@ -1,6 +1,6 @@
 export enum GeneType {
   speed,
-  temperature, // -100 to 100
+  temperature, // -60 to 100
   COUNT
 }
 

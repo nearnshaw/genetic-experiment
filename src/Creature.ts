@@ -35,7 +35,7 @@ export class Creature {
     entity.addComponent(this.transform)
 
     let speed = 0.5
-    let temperature = 0
+    let temperature = 20
 
     this.genome = new Genome([speed, temperature])
     entity.addComponent(this.genome)
@@ -171,7 +171,7 @@ export class Creature {
     let temperatureDif = this.GetTemperatureDif()
 
     if (temperatureDif > MinTemperatureDiffForDamage) {
-      let temperatureDamage = temperatureDif * DamageCoeff
+      let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
       this.health -= temperatureDamage
 
       if (this.health < 0) this.health = 0
