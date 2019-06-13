@@ -7,7 +7,7 @@ const MAX_CREATURES_AMOUNT = 10
 
 export let chipaPool = new Pool(MAX_CREATURES_AMOUNT)
 
-let basicChipaShape = new GLTFShape("models/Chippy.glb")
+//let basicChipaShape = new GLTFShape("models/Chippy.glb")
 
 // Components
 @Component("creature")
@@ -35,14 +35,22 @@ export class Creature {
     entity.addComponent(this.transform)
 
     let speed = 0.5
-    let temperature = 20
+	let temperature = 20
+	let ears = 0.5
+	let eyes = 0.5
+	let feet = 0.5
+	let mouth = 0.5
+	let nose = 0.5
+	let tail = 0.5
+	let wings = 0.5
 
-    this.genome = new Genome([speed, temperature])
+    this.genome = new Genome([speed, temperature, ears, eyes, feet, mouth, nose, tail, wings])
     entity.addComponent(this.genome)
 
     // TODO :  change depending on case
-    this.shape = basicChipaShape
-    entity.addComponentOrReplace(this.shape)
+    //this.shape = basicChipaShape
+	//entity.addComponentOrReplace(this.shape)
+	
 
     let animator = new Animator()
     this.walkAnim = animator.getClip("Walking")
@@ -89,7 +97,9 @@ export class Creature {
         position: new Vector3(-7.6, -3.1, -2.65)
       })
     )
-    // engine.addEntity(temperatureTextEntity)
+	// engine.addEntity(temperatureTextEntity)
+	
+	// TODO  onclick should be on body, maybe also on parts
 
     /* entity.addComponentOrReplace(
       new OnClick(() => {
@@ -131,7 +141,8 @@ export class Creature {
       this.genome.genes[GeneType.size] + (Math.random() - 0.5) * 2 */
 
     childCreature.genome.CopyFrom(this.genome)
-    childCreature.Mutate()
+	childCreature.Mutate()
+	BuildBody(sonEntity)
 
     childCreature.movementPauseTimer = Math.random() * 5
   }
@@ -313,4 +324,126 @@ function ClearCreatureEntity(entity: IEntity) {
 
     engine.removeEntity(entity.children[key])
   }
+}
+
+///  GLTF declarations
+
+//body
+let neutralChipaBody = new GLTFShape("models/Creature/Body.glb")
+let winterChipaBody1 = new GLTFShape("models/Creature/Winter_Lv1.glb")
+let winterChipaBody2 = new GLTFShape("models/Creature/Winter_Lv2.glb")
+
+//feet
+let feet_spider = new GLTFShape("models/Creature/Feet_Spider.glb")
+let feet_big = new GLTFShape("models/Creature/Feet_Big.glb")
+let feet_centi = new GLTFShape("models/Creature/Feet_Centipede.glb")
+
+//ears
+let ears_acua = new GLTFShape("models/Creature/Ears_AcuaticFin.glb")
+let ears_cat = new GLTFShape("models/Creature/Ears_Cat.glb")
+let ears_bear = new GLTFShape("models/Creature/Ears_Bear.glb")
+let ears_cute = new GLTFShape("models/Creature/Ears_Cute.glb")
+let ears_bunny = new GLTFShape("models/Creature/Ears_Bunny.glb")
+
+//eyes
+let eyes_cyclop = new GLTFShape("models/Creature/Eyes_Cyclop.glb")
+let eyes_biclop = new GLTFShape("models/Creature/Eyes_Biclop.glb")
+let eyes_nerd = new GLTFShape("models/Creature/Eyes_Nerd.glb")
+let eyes_nerdor = new GLTFShape("models/Creature/Eyes_Nerdor.glb")
+let eyes_spider = new GLTFShape("models/Creature/Eyes_Spider.glb")
+
+
+
+export function BuildBody(creature: IEntity){
+	let genes = creature.getComponent(Genome).genes
+
+	let temperature = genes[GeneType.temperature]
+	let body = new Entity()
+	body.setParent(creature)
+	body.addComponent(neutralChipaBody)
+
+	if (temperature < -30) {
+		let coat = new Entity()
+		coat.addComponent(winterChipaBody2)
+		coat.setParent(creature)
+	  } else if (temperature < 5) {
+		let coat = new Entity()
+		coat.addComponent(winterChipaBody1)
+		coat.setParent(creature)
+	  } else if (temperature < 30) {
+		// normal chipa
+	  } else if (temperature < 70) {
+		// heat 1
+	  } else if (temperature >= 70) {
+		// heat 2
+	}
+
+	let feetGene = genes[GeneType.feet]
+	let feet = new Entity()
+	feet.setParent(creature)
+	
+	if (feetGene < 0.3) {
+		feet.addComponent(feet_centi)
+	  } else if (feetGene < 0.7) {
+		feet.addComponent(feet_big)
+	  } else if (feetGene <= 1) {
+		feet.addComponent(feet_spider)
+	}
+
+	let earsGene = genes[GeneType.ears]
+	let ears = new Entity()
+	ears.setParent(creature)
+
+	if (earsGene < 0.15) {
+		ears.addComponent(ears_acua)
+	  } else if (earsGene < 0.30) {
+		ears.addComponent(ears_cat)
+	  } else if (earsGene < 0.45) {
+		ears.addComponent(ears_bear)
+	  } else if (earsGene < 0.70) {
+		// no ears
+	  } else if (earsGene < 0.85) {
+		ears.addComponent(ears_cute)
+	  } else if (earsGene <= 1) {
+		ears.addComponent(ears_bunny)
+	}	
+
+
+	let eyesGene = genes[GeneType.eyes]
+	let eyes = new Entity()
+	eyes.setParent(creature)
+
+	if (eyesGene < 0.2) {
+		eyes.addComponent(eyes_cyclop)
+	  } else if (eyesGene < 0.4) {
+		eyes.addComponent(eyes_biclop)
+	  } else if (eyesGene < 0.6) {
+		eyes.addComponent(eyes_nerd)
+	  } else if (eyesGene < 0.8) {
+		eyes.addComponent(eyes_nerdor)
+	  } else if (eyesGene <= 1) {
+		eyes.addComponent(eyes_spider)
+	}	
+
+
+
+	// mouth
+	// nose
+	// tail
+	// wings
+
+	// let temperature = genes[GeneType.temperature]
+	// let body = new Entity()
+	// body.setParent(creature)
+	// body.addComponent(new Transform({}))
+
+	// if (temperature < 0.75) {
+		
+	//   } else if (temperature < 0.25) {
+		
+	//   } else if (temperature < -0.25) {
+
+	//   } else if (temperature < -0.75) {
+
+	// }
 }

@@ -1,4 +1,4 @@
-import { Creature, chipaPool, creatures } from "./Creature"
+import { Creature, chipaPool, creatures, BuildBody } from "./Creature"
 import { Environment } from "./Environment"
 import { ButtonData, PushButton } from "./Button"
 import { GeneType } from "./Genome"
@@ -57,6 +57,7 @@ adamEntity.addComponent(adam)
 adam.transform.position = new Vector3(24, 0, 24)
 adam.TargetRandomPosition()
 adam.environment = neutral
+BuildBody(adamEntity)
 adam.UpdateTemperatureText()    
 adam.UpdateScale()
 

@@ -6,7 +6,14 @@ let MutationProb: number = 0.7
 //  1 ->  -0.5 TO + 0.5
 let MutationMaxSpreads: number[] = [
   0.5,  // speed
-  20   // temperature
+  20,   // temperature
+  0.5,  // ears 
+  0.5,  // eyes
+  0.5,  // feet
+  0.5,  // mouth
+  0.5,  // nose
+  0.5,  // tail
+  0.5  // wings
 ]
 
 // let TemperatureButtonValue = 25

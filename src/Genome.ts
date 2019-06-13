@@ -1,6 +1,13 @@
 export enum GeneType {
   speed,
   temperature, // -60 to 100
+  ears,
+  eyes,
+  feet,
+  mouth,
+  nose,
+  tail,
+  wings,
   COUNT
 }
 
