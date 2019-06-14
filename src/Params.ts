@@ -29,7 +29,10 @@ let MinTemperatureDiffForDamage = 8
 let MinCreatureScale = 0.25
 
 // Creatures at max temperature (100) will have this scale factor
-let MaxCreatureScale = 2.5
+let MaxCreatureScale = 2.3
+
+let ColdEnvironmentTemperature = -60
+let HotEnvironmentTemperature = 100
 
 let redMaterial = new Material()
 redMaterial.albedoColor = Color3.Red()

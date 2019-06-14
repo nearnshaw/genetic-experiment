@@ -73,7 +73,7 @@ export class Creature {
     this.name = RandomizeName()
     let nameText = new TextShape(this.name)
     nameText.fontSize = 3
-    nameText.color = Color3.Teal()
+    nameText.color = Color3.Blue()
     nameText.hTextAlign = "center"
     nameText.vTextAlign = "center"
     nameText.billboard = true
@@ -157,10 +157,7 @@ export class Creature {
   }
 
   UpdateScale(){
-    // We lerp the creature's scale from MinCreatureScale to MaxCreatureScale, mapped to the 2 temp extremes: -100 to 100
-    let normalizedTemperatureHalf = Scalar.Lerp(0, 0.5, Math.abs(this.genome.genes[GeneType.temperature]) / 100) * (this.genome.genes[GeneType.temperature] > 0 ? 1 : -1)
-
-    let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, 0.5 + normalizedTemperatureHalf)
+    let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, Scalar.InverseLerp(ColdEnvironmentTemperature, HotEnvironmentTemperature, this.genome.genes[GeneType.temperature]))
 
     this.transform.scale.x = size
     this.transform.scale.y = size
