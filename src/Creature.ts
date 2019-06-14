@@ -116,6 +116,7 @@ export class Creature {
 
   TargetRandomPosition() {
     this.oldPos = this.transform.position
+    this.oldPos.y = 0
     this.nextPos = newCenteredRandomPos(neutralEnvironmentPosition, 8) // (24, 0, 24) is the center of a 3x3 scene
 
     this.movementFraction = 0
@@ -217,6 +218,8 @@ export class DieSLowly implements ISystem {
 engine.addSystem(new DieSLowly())
 
 export class Wander implements ISystem {
+  sinTime: number = 0
+
   update(dt: number) {
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
@@ -239,12 +242,16 @@ export class Wander implements ISystem {
       if (creature.movementFraction > 1) {
         creature.movementFraction = 1
       }
-
+      
       creature.transform.position = Vector3.Lerp(
         creature.oldPos,
         creature.nextPos,
         creature.movementFraction
-      )
+        )
+      
+      this.sinTime += dt * speed * 4
+      let verticalOffset = new Vector3(0, Math.abs(Math.sin(this.sinTime)) * Math.abs(creature.genome.genes[GeneType.temperature]/30), 0)
+      creature.transform.position = Vector3.Add(creature.transform.position, verticalOffset)
 
       // reached destination
       if (creature.movementFraction == 1) {
@@ -290,6 +297,8 @@ function RandomizeName() {
     return "Pumpi"
   } else if (randomNumber < 0.15) {
     return "Bimbo"
+  } else if (randomNumber < 0.175) {
+    return "Falopon"
   } else if (randomNumber < 0.2) {
     return "Troncho"
   } else if (randomNumber < 0.25) {
@@ -302,14 +311,20 @@ function RandomizeName() {
     return "Sputnik"
   } else if (randomNumber < 0.45) {
     return "Satoshi"
+  } else if (randomNumber < 0.475) {
+    return "Bilbo"
   } else if (randomNumber < 0.5) {
     return "Falchor"
   } else if (randomNumber < 0.55) {
     return "Pipo"
+  } else if (randomNumber < 0.575) {
+    return "Keanu"
   } else if (randomNumber < 0.6) {
     return "Kinky"
   } else if (randomNumber < 0.65) {
     return "Buddy"
+  } else if (randomNumber < 0.675) {
+    return "Ryan"
   } else if (randomNumber < 0.7) {
     return "Slimy"
   } else if (randomNumber < 0.75) {
@@ -320,6 +335,8 @@ function RandomizeName() {
     return "Chippy"
   } else if (randomNumber < 0.85) {
     return "Chiffy"
+  } else if (randomNumber < 0.875) {
+    return "Satatus"
   } else if (randomNumber < 0.9) {
     return "Chippu"
   } else if (randomNumber < 0.95) {
