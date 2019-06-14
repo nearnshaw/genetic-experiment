@@ -20,7 +20,7 @@ export class ButtonData {
 export const buttons = engine.getComponentGroup(ButtonData)
 
 export class PushButton implements ISystem {
-  update(dt: number) {
+  /* update(dt: number) {
 
     for (let button of buttons.entities) {
       let transform = button.getComponent(Transform)
@@ -48,6 +48,6 @@ export class PushButton implements ISystem {
         state.fraction -= 1 / 8
       }
     }
-  }
+  } */
 }
 

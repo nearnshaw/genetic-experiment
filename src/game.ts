@@ -1,7 +1,6 @@
 import { Creature, chipaPool, creatures, BuildBody } from "./Creature"
 import { Environment } from "./Environment"
 import { ButtonData, PushButton } from "./Button"
-import { GeneType } from "./Genome"
 
 // systems
 engine.addSystem(new PushButton())
@@ -15,28 +14,14 @@ parkEntity.addComponent(
 engine.addEntity(parkEntity)
 
 // Instanciar environments
-let neutralEnvironment = new Entity()
-let neutral = new Environment(20)
-neutralEnvironment.addComponent(neutral)
-neutralEnvironment.addComponent(new PlaneShape())
-neutralEnvironment.addComponent(
-  new Transform({
-    position: new Vector3(24, 0, 24),
-    scale: new Vector3(16, 16, 16),
-    rotation: Quaternion.Euler(90, 0, 0)
-  })
-)
-engine.addEntity(neutralEnvironment)
-
-// Instanciar environments
 let hotEnvironment = new Entity()
 let hot = new Environment(HotEnvironmentTemperature)
 hotEnvironment.addComponent(hot)
 hotEnvironment.addComponent(new PlaneShape())
 hotEnvironment.addComponent(
   new Transform({
-    position: new Vector3(8, 0, 8),
-    scale: new Vector3(16, 16, 16),
+    position: hotEnvironmentPosition,
+    scale: new Vector3(8, 8, 1),
     rotation: Quaternion.Euler(90, 0, 0)
   })
 )
@@ -50,51 +35,46 @@ coldEnvironment.addComponent(cold)
 coldEnvironment.addComponent(new PlaneShape())
 coldEnvironment.addComponent(
   new Transform({
-    position: new Vector3(40, 0, 40),
-    scale: new Vector3(16, 16, 16),
+    position: coldEnvironmentPosition,
+    scale: new Vector3(8, 8, 1),
     rotation: Quaternion.Euler(90, 0, 0)
   })
 )
 coldEnvironment.addComponent(coldMaterial)
 engine.addEntity(coldEnvironment)
 
-// Instantiate first creature
-let adamEntity = chipaPool.getEntity()
-let adam = new Creature(adamEntity)
-adamEntity.addComponent(adam)
-adam.transform.position = new Vector3(24, 0, 24)
-adam.TargetRandomPosition()
-adam.environment = neutral
-BuildBody(adamEntity)
-adam.UpdateTemperatureText()
-adam.UpdateScale()
-
-let testCreature = new Entity()
-testCreature.addComponent(
+// neutral environment
+let neutralEnvironment = new Entity()
+let neutral = new Environment(20)
+neutralEnvironment.addComponent(neutral)
+neutralEnvironment.addComponent(new PlaneShape())
+neutralEnvironment.addComponent(
   new Transform({
-    position: new Vector3(5, 0, 5)
+    position: neutralEnvironmentPosition,
+    scale: new Vector3(16, 16, 1),
+    rotation: Quaternion.Euler(90, 0, 0)
   })
 )
-testCreature.addComponent(new GLTFShape("models/testCreature.glb"))
-
-engine.addEntity(testCreature)
+engine.addEntity(neutralEnvironment)
 
 let machine = new Entity()
 machine.addComponent(new BoxShape())
 machine.addComponent(
   new Transform({
-    position: new Vector3(15, 0, 22),
-    scale: new Vector3(1, 1, 4)
+    position: new Vector3(25.5, 0, 40),
+    scale: new Vector3(2, 3, 6),
+    rotation: Quaternion.Euler(0, 0, -35)
   })
 )
 engine.addEntity(machine)
+// machine.setParent(neutralEnvironment)
 
 let tempUp = new Entity()
 tempUp.addComponent(
   new Transform({
-    position: new Vector3(14.5, 0, 21),
-    scale: new Vector3(0.5, 0.5, 0.5),
-    rotation: Quaternion.Euler(0, 0, 90)
+    position: new Vector3(-0.3, 0.5, 0),
+    scale: new Vector3(1, 0.5, 0.5),
+    rotation: Quaternion.Euler(0, 0, 0)
   })
 )
 tempUp.addComponent(new GLTFShape("models/Button.glb"))
@@ -105,7 +85,6 @@ tempUp.addComponent(
     if (neutral.temperature > 100) neutral.temperature = 100
 
     tempUp.getComponent(ButtonData).pressed = true
-    //neutralMaterial.albedoColor.g = 85
     let b = neutralMaterial.albedoColor.b
     let r = neutralMaterial.albedoColor.r
     neutralMaterial.albedoColor = new Color3(r + 0.6, 0.5, b - 0.6)
@@ -126,13 +105,14 @@ tempUp.addComponent(
 )
 tempUp.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempUp)
+tempUp.setParent(machine)
 
 let tempDown = new Entity()
 tempDown.addComponent(
   new Transform({
-    position: new Vector3(14.5, 0, 23),
-    scale: new Vector3(0.5, 0.5, 0.5),
-    rotation: Quaternion.Euler(0, 0, 90)
+    position: new Vector3(0.3, 0.5, 0),
+    scale: new Vector3(1, 0.5, 0.5),
+    rotation: Quaternion.Euler(0, 0, 0)
   })
 )
 tempDown.addComponent(new GLTFShape("models/Button.glb"))
@@ -164,6 +144,7 @@ tempDown.addComponent(
 )
 tempDown.addComponent(new ButtonData(14.5, 14.7))
 engine.addEntity(tempDown)
+tempDown.setParent(machine)
 
 let thermometer = new Entity()
 let temperatureText = new TextShape(neutral.temperature.toString() + "°")
@@ -171,10 +152,24 @@ temperatureText.fontSize = 5
 temperatureText.hTextAlign = "center"
 temperatureText.vTextAlign = "center"
 thermometer.addComponent(temperatureText)
+
 thermometer.addComponent(
   new Transform({
-    position: new Vector3(12, -2, 30),
-    rotation: Quaternion.Euler(0, 90, 0)
+    // position: new Vector3(12, -2, 30),
+    position: Vector3.Add(new Vector3(0, 0.8, 0), new Vector3(-7.613291, -3.411212, -2.641078)), // subtracted vector is the 'known bugged offset'
+    // rotation: Quaternion.Euler(90, 0, 0)
   })
 )
 engine.addEntity(thermometer)
+thermometer.setParent(machine)
+
+// Instantiate first creature
+let adamEntity = chipaPool.getEntity()
+let adam = new Creature(adamEntity)
+adamEntity.addComponent(adam)
+adam.transform.position = new Vector3(24, 0, 24)
+adam.TargetRandomPosition()
+adam.environment = neutral
+BuildBody(adamEntity)
+adam.UpdateTemperatureText()
+adam.UpdateScale()

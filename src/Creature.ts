@@ -73,7 +73,7 @@ export class Creature {
     this.name = RandomizeName()
     let nameText = new TextShape(this.name)
     nameText.fontSize = 3
-    nameText.color = Color3.Blue()
+    nameText.color = Color3.White()
     nameText.hTextAlign = "center"
     nameText.vTextAlign = "center"
     nameText.billboard = true
@@ -116,7 +116,7 @@ export class Creature {
 
   TargetRandomPosition() {
     this.oldPos = this.transform.position
-    this.nextPos = newCenteredRandomPos(new Vector3(24, 0, 24), 8) // (24, 0, 24) is the center of a 3x3 scene
+    this.nextPos = newCenteredRandomPos(neutralEnvironmentPosition, 8) // (24, 0, 24) is the center of a 3x3 scene
 
     this.movementFraction = 0
 
@@ -282,24 +282,40 @@ export function newCenteredRandomPos(centerPos: Vector3, radius: number) {
 function RandomizeName() {
   let randomNumber = Math.random()
 
-  if (randomNumber < 0.1) {
+  if (randomNumber < 0.01) {
     return "Pumbi"
+  } else if (randomNumber < 0.05) {
+    return "Kalifa"
   } else if (randomNumber < 0.1) {
     return "Pumpi"
   } else if (randomNumber < 0.15) {
     return "Bimbo"
   } else if (randomNumber < 0.2) {
-    return "Bimbi"
+    return "Troncho"
+  } else if (randomNumber < 0.25) {
+    return "Mika"
   } else if (randomNumber < 0.3) {
     return "Plinky"
+  } else if (randomNumber < 0.35) {
+    return "Faloppy"
   } else if (randomNumber < 0.4) {
     return "Sputnik"
+  } else if (randomNumber < 0.45) {
+    return "Satoshi"
   } else if (randomNumber < 0.5) {
     return "Falchor"
+  } else if (randomNumber < 0.55) {
+    return "Pipo"
   } else if (randomNumber < 0.6) {
     return "Kinky"
+  } else if (randomNumber < 0.65) {
+    return "Buddy"
   } else if (randomNumber < 0.7) {
     return "Slimy"
+  } else if (randomNumber < 0.75) {
+    return "JoJo"
+  } else if (randomNumber < 0.775) {
+    return "OraOraOra"
   } else if (randomNumber < 0.8) {
     return "Chippy"
   } else if (randomNumber < 0.85) {
@@ -351,7 +367,6 @@ let eyes_nerd = new GLTFShape("models/Creature/Eyes_Nerd.glb")
 let eyes_nerdor = new GLTFShape("models/Creature/Eyes_Nerdor.glb")
 let eyes_spider = new GLTFShape("models/Creature/Eyes_Spider.glb")
 
-
 // mouth
 let mouth_acuatic = new GLTFShape("models/Creature/Mouth_Acuatic.glb")
 let mouth_smile = new GLTFShape("models/Creature/Mouth_Smile.glb")
@@ -369,7 +384,6 @@ let tail_pig = new GLTFShape("models/Creature/Tail_Pig.glb")
 let wings_acuatic = new GLTFShape("models/Creature/Wings_Acuatic.glb")
 let wings_bat = new GLTFShape("models/Creature/Wings_Bat.glb")
 let wings_dragon = new GLTFShape("models/Creature/Wings_Dragon.glb")
-
 
 export function BuildBody(creature: IEntity){
 	let genes = creature.getComponent(Genome).genes
