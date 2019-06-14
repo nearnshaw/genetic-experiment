@@ -6,6 +6,14 @@ import { GeneType } from "./Genome"
 // systems
 engine.addSystem(new PushButton())
 
+// Instanciar Terreno
+let parkEntity = new Entity()
+parkEntity.addComponent(new GLTFShape("models/Environment_01.glb"))
+parkEntity.addComponent(
+  new Transform()
+)
+engine.addEntity(parkEntity)
+
 // Instanciar environments
 let neutralEnvironment = new Entity()
 let neutral = new Environment(20)
@@ -58,7 +66,7 @@ adam.transform.position = new Vector3(24, 0, 24)
 adam.TargetRandomPosition()
 adam.environment = neutral
 BuildBody(adamEntity)
-adam.UpdateTemperatureText()    
+adam.UpdateTemperatureText()
 adam.UpdateScale()
 
 let testCreature = new Entity()
@@ -141,7 +149,7 @@ tempDown.addComponent(
     neutralMaterial.albedoColor = new Color3(r - 0.6, 0.5, b + 0.6)
     // neutralEnvironment.removeComponent(Material)
     neutralEnvironment.addComponentOrReplace(neutralMaterial)
-    
+
     let tempInC = neutral.temperature.toString()
     temperatureText.value = tempInC + "°"
 
