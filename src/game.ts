@@ -155,9 +155,9 @@ thermometer.addComponent(temperatureText)
 
 thermometer.addComponent(
   new Transform({
-    // position: new Vector3(12, -2, 30),
-    position: Vector3.Add(new Vector3(0, 0.8, 0), new Vector3(-7.613291, -3.411212, -2.641078)), // subtracted vector is the 'known bugged offset'
-    // rotation: Quaternion.Euler(90, 0, 0)
+    scale: new Vector3(0.3, 0.5, 0.8),
+    position: new Vector3(0, 0.55, -0.3),
+    rotation: Quaternion.Euler(90, 0, 90)
   })
 )
 engine.addEntity(thermometer)

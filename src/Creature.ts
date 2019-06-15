@@ -80,7 +80,7 @@ export class Creature {
     nameTextEntity.addComponent(nameText)
     nameTextEntity.addComponent(
       new Transform({
-        position: new Vector3(-7.6, -2.8, -2.65)
+        position: new Vector3(0, 0.45, 0)
       })
     )
     // engine.addEntity(nameTextEntity)
@@ -96,7 +96,7 @@ export class Creature {
     temperatureTextEntity.addComponent(this.temperatureText)
     temperatureTextEntity.addComponent(
       new Transform({
-        position: new Vector3(-7.6, -3.1, -2.65)
+        position: new Vector3(0, 0.2, 0)
       })
     )
 	// engine.addEntity(temperatureTextEntity)
