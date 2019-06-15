@@ -1,25 +1,25 @@
 export class Pool {
   pool: Entity[] = []
   max?: number = 1000
-  constructor(max: number = 10) {
+  constructor(max: number = 1000) {
     this.pool = []
     this.max = max
 
     // generate initial instances
-    for (let index = 0; index < max; index++) {
-      this.newEntity()
+    for (let index = 0; index < max/4; index++) {
+	  this.newEntity()
     }
   }
 
   getEntity() {
     for (let i = 0; i < this.pool.length; i++) {
       const entity = this.pool[i]
-      if (!entity.alive) {
+      if (!entity.isAddedToEngine()) {
         return entity
       }
     }
 
-    if (this.max && this.pool.length < this.max) {
+    if (this.pool.length < this.max) {
       return this.newEntity()
     }
 

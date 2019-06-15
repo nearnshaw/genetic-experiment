@@ -7,6 +7,8 @@ const MAX_CREATURES_AMOUNT = 10
 
 export let chipaPool = new Pool(MAX_CREATURES_AMOUNT)
 
+export let cotillonPool = new Pool(MAX_CREATURES_AMOUNT*8)
+
 //let basicChipaShape = new GLTFShape("models/Chippy.glb")
 
 // Components
@@ -272,8 +274,9 @@ export class DieSLowly implements ISystem {
       creature.takeDamage()
       if (creature.health <= 0) {
         log("RIP")
-        ClearCreatureEntity(entity)
-        engine.removeEntity(entity)
+		ClearCreatureEntity(entity)
+		
+        
       }
     }
   }
@@ -420,9 +423,9 @@ function ClearCreatureEntity(entity: IEntity) {
 
   for (const key in entity.children) {
     ClearCreatureEntity(entity.children[key])
-
-    engine.removeEntity(entity.children[key])
   }
+
+  engine.removeEntity(entity)
 }
 
 ///  GLTF declarations
@@ -477,34 +480,34 @@ export function BuildBody(creature: IEntity){
 	let genes = creature.getComponent(Genome).genes
 
 	let temperature = genes[GeneType.temperature]
-	let body = new Entity()
+	let body = cotillonPool.getEntity()
 	body.setParent(creature)
 	body.addComponent(neutralChipaBody)
 
 	if (temperature < -30) {
-		let coat = new Entity()
+		let coat = cotillonPool.getEntity()
 		coat.addComponent(winterChipaBody2)
 		coat.setParent(creature)
 	  } else if (temperature < 5) {
-		let coat = new Entity()
+		let coat = cotillonPool.getEntity()
 		coat.addComponent(winterChipaBody1)
 		coat.setParent(creature)
 	  } else if (temperature < 30) {
 		// normal chipa
-	  } else if (temperature < 70) {
+	  } else if (temperature < 60) {
 		// heat 1
-		let coat = new Entity()
+		let coat = cotillonPool.getEntity()
 		coat.addComponent(summerChipaBody1)
 		coat.setParent(creature)
-	  } else if (temperature >= 70) {
+	  } else if (temperature >= 60) {
 		// heat 2
-		let coat = new Entity()
+		let coat = cotillonPool.getEntity()
 		coat.addComponent(summerChipaBody2)
 		coat.setParent(creature)
 	}
 
 	let feetGene = genes[GeneType.feet]
-	let feet = new Entity()
+	let feet = cotillonPool.getEntity()
 	feet.setParent(creature)
 	
 	if (feetGene < 0.3) {
@@ -516,7 +519,7 @@ export function BuildBody(creature: IEntity){
 	}
 
 	let earsGene = genes[GeneType.ears]
-	let ears = new Entity()
+	let ears = cotillonPool.getEntity()
 	ears.setParent(creature)
 
 	if (earsGene < 0.15) {
@@ -535,7 +538,7 @@ export function BuildBody(creature: IEntity){
 
 
 	let eyesGene = genes[GeneType.eyes]
-	let eyes = new Entity()
+	let eyes = cotillonPool.getEntity()
 	eyes.setParent(creature)
 
 	if (eyesGene < 0.2) {
@@ -552,7 +555,7 @@ export function BuildBody(creature: IEntity){
 
 
 	let mouthGene = genes[GeneType.mouth]
-	let mouth = new Entity()
+	let mouth = cotillonPool.getEntity()
 	mouth.setParent(creature)
 	
 	if (mouthGene < 0.2) {
@@ -566,7 +569,7 @@ export function BuildBody(creature: IEntity){
 	}
 
 	let noseGene = genes[GeneType.nose]
-	let nose = new Entity()
+	let nose = cotillonPool.getEntity()
 	nose.setParent(creature)
 	
 	if (noseGene < 0.3) {
@@ -578,7 +581,7 @@ export function BuildBody(creature: IEntity){
 	}
 
 	let tailGene = genes[GeneType.tail]
-	let tail = new Entity()
+	let tail = cotillonPool.getEntity()
 	tail.setParent(creature)
 	
 	if (tailGene < 0.3) {
@@ -590,7 +593,7 @@ export function BuildBody(creature: IEntity){
 	}
 
 	let wingsGene = genes[GeneType.wings]
-	let wings = new Entity()
+	let wings = cotillonPool.getEntity()
 	wings.setParent(creature)
 	
 	if (wingsGene < 0.2) {
