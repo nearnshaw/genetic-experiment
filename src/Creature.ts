@@ -417,6 +417,10 @@ function ClearCreatureEntity(entity: IEntity) {
 let neutralChipaBody = new GLTFShape("models/Creature/Body.glb")
 let winterChipaBody1 = new GLTFShape("models/Creature/Winter_Lv1.glb")
 let winterChipaBody2 = new GLTFShape("models/Creature/Winter_Lv2.glb")
+let summerChipaBody1 = new GLTFShape("models/Creature/Heat_Lv1.glb")
+let summerChipaBody2 = new GLTFShape("models/Creature/Heat_Lv2.glb")
+
+
 
 //feet
 let feet_spider = new GLTFShape("models/Creature/Feet_Spider.glb")
@@ -475,8 +479,14 @@ export function BuildBody(creature: IEntity){
 		// normal chipa
 	  } else if (temperature < 70) {
 		// heat 1
+		let coat = new Entity()
+		coat.addComponent(summerChipaBody1)
+		coat.setParent(creature)
 	  } else if (temperature >= 70) {
 		// heat 2
+		let coat = new Entity()
+		coat.addComponent(summerChipaBody2)
+		coat.setParent(creature)
 	}
 
 	let feetGene = genes[GeneType.feet]
