@@ -61,7 +61,7 @@ let machine = new Entity()
 machine.addComponent(new BoxShape())
 machine.addComponent(
   new Transform({
-    position: new Vector3(25.5, 0, 40),
+    position: new Vector3(26.5, -0.5, 40),
     scale: new Vector3(2, 3, 6),
     rotation: Quaternion.Euler(0, 0, -35)
   })
@@ -72,8 +72,8 @@ engine.addEntity(machine)
 let tempUp = new Entity()
 tempUp.addComponent(
   new Transform({
-    position: new Vector3(-0.3, 0.5, 0),
-    scale: new Vector3(1, 0.5, 0.5),
+    position: new Vector3(-0.3, 0.4, -0.3),
+    scale: new Vector3(1.3, 0.5, 0.5),
     rotation: Quaternion.Euler(0, 0, 0)
   })
 )
@@ -110,8 +110,8 @@ tempUp.setParent(machine)
 let tempDown = new Entity()
 tempDown.addComponent(
   new Transform({
-    position: new Vector3(0.3, 0.5, 0),
-    scale: new Vector3(1, 0.5, 0.5),
+    position: new Vector3(0.3, 0.4, -0.3),
+    scale: new Vector3(1.3, 0.5, 0.5),
     rotation: Quaternion.Euler(0, 0, 0)
   })
 )
@@ -155,7 +155,7 @@ thermometer.addComponent(temperatureText)
 
 thermometer.addComponent(
   new Transform({
-    scale: new Vector3(0.3, 0.5, 0.8),
+    scale: new Vector3(0.2, 0.5, 0.8),
     position: new Vector3(0, 0.55, -0.3),
     rotation: Quaternion.Euler(90, 0, 90)
   })
