@@ -36,7 +36,8 @@ export class Creature {
     this.transform = new Transform()
     entity.addComponent(this.transform)
 
-    let speed = 0.5
+	//let speed = 0.5
+	let size = 0.5
     let temperature = 20
     let ears = 0.5
     let eyes = 0.5
@@ -46,7 +47,7 @@ export class Creature {
     let tail = 0.5
     let wings = 0.5
 
-    this.genome = new Genome([speed, temperature, ears, eyes, feet, mouth, nose, tail, wings])
+    this.genome = new Genome([size, temperature, ears, eyes, feet, mouth, nose, tail, wings])
     entity.addComponent(this.genome)
 
     // TODO :  change depending on case
@@ -163,7 +164,9 @@ export class Creature {
     // childCreature.environment = this.environment
     childCreature.SetEnvironment(this.environment)
 
-    childCreature.transform.position = this.transform.position
+	childCreature.transform.position = this.transform.position
+	//childCreature.transform.scale = this.transform.scale
+
     childCreature.TargetRandomPosition()
 
     /* childCreature.genome.genes[GeneType.speed] =
@@ -188,7 +191,7 @@ export class Creature {
   }
 
   UpdateScale(){
-    let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, Scalar.InverseLerp(ColdEnvironmentTemperature, HotEnvironmentTemperature, this.genome.genes[GeneType.temperature]))
+    let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, this.genome.genes[GeneType.size])
 
     this.transform.scale.x = size
     this.transform.scale.y = size
@@ -230,7 +233,14 @@ export class Creature {
 
     if (temperatureDif > MinTemperatureDiffForDamage) {
       let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
-      this.health -= temperatureDamage
+
+	  let sizeFactor = this.genome.genes[GeneType.size]*2
+	  
+	  // neutral 0.5 size -> /1*1 .. no effect
+	  // large 1 size -> /2*2  ->   less damage
+	  // small 0 size -> /0.5*0.5  ->  more damage
+	  let damageForSize = temperatureDamage / (sizeFactor * sizeFactor)
+	  this.health -= damageForSize
 
       if (this.health < 0) this.health = 0
 
@@ -285,11 +295,15 @@ export class Wander implements ISystem {
 
       if (creature.movementFraction >= 1) continue
 
-      let speed = Math.abs(creature.genome.genes[GeneType.speed])
-      if (!creature.walkAnim.playing) {
-        creature.walkAnim.speed = speed
-        creature.walkAnim.playing = true
-      }
+	  let speed = Math.abs((-1*(creature.genome.genes[GeneType.size]))+ 1)
+	  //  to make speed inverse to size... 
+	  //  size 1 -> speed 0,  size 0 -> speed 1, size 0.5 -> speed 0.5 
+
+
+    //   if (!creature.walkAnim.playing) {
+    //     creature.walkAnim.speed = speed
+    //     creature.walkAnim.playing = true
+    //   }
 
       creature.movementFraction += speed * dt
       if (creature.movementFraction > 1) {

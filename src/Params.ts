@@ -5,7 +5,7 @@ let MutationProb: number = 0.7
 
 //  1 ->  -0.5 TO + 0.5
 let MutationMaxSpreads: number[] = [
-  0.5,  // speed
+  0.25,  // size
   20,   // temperature
   0.25,  // ears 
   0.25,  // eyes
@@ -17,7 +17,7 @@ let MutationMaxSpreads: number[] = [
 ]
 
 // let TemperatureButtonValue = 25
-let TemperatureButtonValue = MutationMaxSpreads[1] / 2
+let TemperatureButtonValue = 10 //MutationMaxSpreads[1] / 2
 
 // Coefficient to multiply damage done on every frame
 let DamageCoeff = 0.005

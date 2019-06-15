@@ -1,5 +1,5 @@
 export enum GeneType {
-  speed,
+  size,
   temperature, // -60 to 100
   ears,
   eyes,
