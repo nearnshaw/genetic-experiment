@@ -98,6 +98,7 @@ tempUp.addComponent(
       let creature = entity.getComponent(Creature)
 
       creature.UpdateTemperatureText()
+      creature.UpdateTemperatureIcons()
     }
 
     log("temperature: " + neutral.temperature)
@@ -137,6 +138,7 @@ tempDown.addComponent(
       let creature = entity.getComponent(Creature)
 
       creature.UpdateTemperatureText()
+      creature.UpdateTemperatureIcons()
     }
 
     log("temperature: " + neutral.temperature)
@@ -169,7 +171,7 @@ let adam = new Creature(adamEntity)
 adamEntity.addComponent(adam)
 adam.transform.position = new Vector3(24, 0, 24)
 adam.TargetRandomPosition()
-adam.environment = neutral
+adam.SetEnvironment(neutral)
 BuildBody(adamEntity)
 adam.UpdateTemperatureText()
 adam.UpdateScale()

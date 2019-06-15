@@ -38,6 +38,14 @@ let neutralEnvironmentPosition = new Vector3(16, 0.01, 40)
 let hotEnvironmentPosition = new Vector3(48, 0.01, 32)
 let coldEnvironmentPosition = new Vector3(48, 0.01, 48)
 
+let coldIconTex = new Texture("images/cold-thermometer.png")
+let coldIconMaterial = new Material()
+coldIconMaterial.alphaTexture = coldIconMaterial.albedoTexture = coldIconTex
+
+let hotIconTex = new Texture("images/hot-thermometer.png")
+let hotIconMaterial = new Material()
+hotIconMaterial.alphaTexture = hotIconMaterial.albedoTexture = hotIconTex
+
 let redMaterial = new Material()
 redMaterial.albedoColor = Color3.Red()
 let yellowMaterial = new Material()

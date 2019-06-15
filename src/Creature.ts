@@ -22,11 +22,13 @@ export class Creature {
   movementPauseTimer: number = 0
   transform: Transform
   genome: Genome
-  environment: Environment
   shape: GLTFShape
   temperatureText: TextShape
   walkAnim: AnimationState
   entity: IEntity
+  coldIconEntityTransform: Transform
+  hotIconEntityTransform: Transform
+  environment: Environment
 
   constructor(entity: IEntity) {
     this.entity = entity
@@ -35,14 +37,14 @@ export class Creature {
     entity.addComponent(this.transform)
 
     let speed = 0.5
-	let temperature = 20
-	let ears = 0.5
-	let eyes = 0.5
-	let feet = 0.5
-	let mouth = 0.5
-	let nose = 0.5
-	let tail = 0.5
-	let wings = 0.5
+    let temperature = 20
+    let ears = 0.5
+    let eyes = 0.5
+    let feet = 0.5
+    let mouth = 0.5
+    let nose = 0.5
+    let tail = 0.5
+    let wings = 0.5
 
     this.genome = new Genome([speed, temperature, ears, eyes, feet, mouth, nose, tail, wings])
     entity.addComponent(this.genome)
@@ -50,26 +52,13 @@ export class Creature {
     // TODO :  change depending on case
     //this.shape = basicChipaShape
 	//entity.addComponentOrReplace(this.shape)
-	
 
     let animator = new Animator()
     this.walkAnim = animator.getClip("Walking")
     entity.addComponent(animator)
 
-    let healthBarEntity = new Entity()
-    healthBarEntity.setParent(entity)
-    healthBarEntity.addComponent(
-      new Transform({
-        position: new Vector3(0, 1.5, 0),
-        rotation: Quaternion.Euler(0, 180, 0)
-      })
-    )
-    this.healthBar = new ProgressBar(healthBarEntity)
-    healthBarEntity.addComponent(this.healthBar)
-    // engine.addEntity(healthBarEntity)
-
     let nameTextEntity = new Entity()
-    nameTextEntity.setParent(healthBarEntity)
+    nameTextEntity.setParent(entity)
     this.name = RandomizeName()
     let nameText = new TextShape(this.name)
     nameText.fontSize = 3
@@ -80,15 +69,15 @@ export class Creature {
     nameTextEntity.addComponent(nameText)
     nameTextEntity.addComponent(
       new Transform({
-        position: new Vector3(0, 0.45, 0)
+        position: new Vector3(0, 1.8, 0)
       })
     )
     // engine.addEntity(nameTextEntity)
 
     let temperatureTextEntity = new Entity()
-    temperatureTextEntity.setParent(healthBarEntity)
+    temperatureTextEntity.setParent(nameTextEntity)
     this.temperatureText = new TextShape(temperature + "°")
-    this.temperatureText.fontSize = 2.5
+    this.temperatureText.fontSize = 2.75
     this.temperatureText.color = Color3.Green()
     this.temperatureText.hTextAlign = "center"
     this.temperatureText.vTextAlign = "center"
@@ -96,10 +85,48 @@ export class Creature {
     temperatureTextEntity.addComponent(this.temperatureText)
     temperatureTextEntity.addComponent(
       new Transform({
-        position: new Vector3(0, 0.2, 0)
+        position: new Vector3(0, -0.3, 0)
       })
     )
-	// engine.addEntity(temperatureTextEntity)
+  // engine.addEntity(temperatureTextEntity)
+
+    let healthBarEntity = new Entity()
+    healthBarEntity.setParent(nameTextEntity)
+    healthBarEntity.addComponent(
+      new Transform({
+        position: new Vector3(0, -0.6, 0),
+        rotation: Quaternion.Euler(0, 180, 0)
+      })
+    )
+    this.healthBar = new ProgressBar(healthBarEntity)
+    healthBarEntity.addComponent(this.healthBar)
+    // engine.addEntity(healthBarEntity)
+  
+  let coldIconEntity = new Entity()
+  coldIconEntity.setParent(temperatureTextEntity)
+  this.coldIconEntityTransform = new Transform({
+                                  position: new Vector3(0.45, 0, 0),
+                                  rotation: Quaternion.Euler(0, 0, 0),
+                                  scale: new Vector3(0, 0, 0)
+                                })
+  coldIconEntity.addComponent(this.coldIconEntityTransform)
+  coldIconEntity.addComponent(new PlaneShape())
+  coldIconEntity.addComponent(coldIconMaterial)
+  // engine.addEntity(this.coldIconEntity)
+
+  let hotIconEntity = new Entity()
+  hotIconEntity.setParent(temperatureTextEntity)
+  this.hotIconEntityTransform = new Transform({
+                                position: new Vector3(-0.45, 0, 0),
+                                rotation: Quaternion.Euler(0, 0, 0),
+                                scale: new Vector3(0, 0, 0)
+                              })
+  hotIconEntity.addComponent(this.hotIconEntityTransform)
+  hotIconEntity.addComponent(new PlaneShape())
+  hotIconEntity.addComponent(hotIconMaterial)
+  // engine.addEntity(this.coldIconEntity)
+
+  // coldIconEntity.alive = false
 	
 	// TODO  onclick should be on body, maybe also on parts
 
@@ -117,7 +144,7 @@ export class Creature {
   TargetRandomPosition() {
     this.oldPos = this.transform.position
     this.oldPos.y = 0
-    this.nextPos = newCenteredRandomPos(neutralEnvironmentPosition, 8) // (24, 0, 24) is the center of a 3x3 scene
+    this.nextPos = newCenteredRandomPos(neutralEnvironmentPosition, 8)
 
     this.movementFraction = 0
 
@@ -133,7 +160,8 @@ export class Creature {
     let childCreature = new Creature(sonEntity)
     sonEntity.addComponentOrReplace(childCreature)
 
-    childCreature.environment = this.environment
+    // childCreature.environment = this.environment
+    childCreature.SetEnvironment(this.environment)
 
     childCreature.transform.position = this.transform.position
     childCreature.TargetRandomPosition()
@@ -144,8 +172,8 @@ export class Creature {
       this.genome.genes[GeneType.size] + (Math.random() - 0.5) * 2 */
 
     childCreature.genome.CopyFrom(this.genome)
-	childCreature.Mutate()
-	BuildBody(sonEntity)
+    childCreature.Mutate()
+    BuildBody(sonEntity)
 
     childCreature.movementPauseTimer = Math.random() * 5
   }
@@ -155,6 +183,8 @@ export class Creature {
     this.UpdateTemperatureText()
     
     this.UpdateScale()
+
+    this.UpdateTemperatureIcons()
   }
 
   UpdateScale(){
@@ -178,6 +208,23 @@ export class Creature {
       this.temperatureText.color = Color3.Green()
   }
 
+  UpdateTemperatureIcons(){
+    if(!this.environment) return
+    
+    let hotterEnvironmentTemp = this.environment.temperature + 10
+    let colderEnvironmentTemp = this.environment.temperature - 10
+
+    if(Math.abs(hotterEnvironmentTemp - this.genome.genes[GeneType.temperature]) <= MinTemperatureDiffForDamage)
+      this.hotIconEntityTransform.scale.set(0.25, 0.25, 0.25)
+    else
+      this.hotIconEntityTransform.scale.set(0, 0, 0)
+
+    if(Math.abs(colderEnvironmentTemp - this.genome.genes[GeneType.temperature]) <= MinTemperatureDiffForDamage)
+      this.coldIconEntityTransform.scale.set(0.25, 0.25, 0.25)
+    else
+      this.coldIconEntityTransform.scale.set(0, 0, 0)
+  }
+
   takeDamage() {
     let temperatureDif = this.GetTemperatureDif()
 
@@ -196,6 +243,12 @@ export class Creature {
       return 0
 
     return Math.abs(this.environment.temperature - this.genome.genes[GeneType.temperature])
+  }
+
+  SetEnvironment(newEnvironment: Environment){
+    this.environment = newEnvironment
+
+    this.UpdateTemperatureIcons()
   }
 }
 export const creatures = engine.getComponentGroup(Creature)
