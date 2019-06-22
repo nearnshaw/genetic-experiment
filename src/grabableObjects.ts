@@ -1,4 +1,5 @@
-import { environments } from "./Environment";
+import { environments, Environment } from "./Environment";
+import { Creature } from "./Creature";
 
 @Component('grabableObjectComponent')
 export class GrabableObjectComponent {
@@ -18,8 +19,15 @@ export class GrabableObjectComponent {
   }
 }
 
+@Component('objectGrabberComponent')
+export class ObjectGrabberComponent {
+  grabbedObject: IEntity = null
+}
+
 let grabbedOffset = new Vector3(0.5, 0.5, 0)
 
+let dummyPosParent = new Entity()
+engine.addEntity(dummyPosParent)
 
 
 // object to get user position and rotation
@@ -29,10 +37,11 @@ const camera = Camera.instance
 let objectGrabber = new Entity()
 objectGrabber.addComponent(
   new Transform({
-    position: camera.position,
-    rotation: camera.rotation
+    position: camera.position.clone(),
+    rotation: camera.rotation.clone()
   })
 )
+objectGrabber.addComponent(new ObjectGrabberComponent())
 engine.addEntity(objectGrabber)
 
 
@@ -42,10 +51,7 @@ export const grabbableObjects = engine.getComponentGroup(
   GrabableObjectComponent
 )
 
-@Component('objectGrabberComponent')
-export class ObjectGrabberComponent {
-  grabbedObject: IEntity = null
-}
+
 
 // export class DropObjects implements ISystem {
 //   update(dt: number) {
@@ -79,22 +85,15 @@ export class ObjectGrabberSystem implements ISystem {
   }
 
   update(deltaTime: number) {
+	  if (objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject == null) {
+		  //log("no children")
+		  return false
+		}
+
 	  let transform = objectGrabber.getComponent(Transform)
-	  transform.position = camera.position
-	  transform.rotation = camera.rotation
+	  transform.position = camera.position.clone()
+	  transform.rotation = camera.rotation.clone()
 
-    // let lerpingSpeed = 15
-    // this.transform.position = Vector3.Lerp(
-    //   this.transform.position,
-    //   this.targetPosition,
-    //   deltaTime * lerpingSpeed
-    // )
-
-    // this.transform.rotation = Quaternion.Slerp(
-    //   this.transform.rotation,
-    //   this.targetRotation,
-    //   deltaTime * lerpingSpeed
-    // )
   }
 }
 
@@ -103,34 +102,40 @@ export function grabObject(grabbedObject: IEntity) {
     if (!objectGrabber.children[0]) {
       log('grabbed object')
       
-
       grabbedObject.getComponent(GrabableObjectComponent).grabbed = true
-      grabbedObject.getParent().setParent(objectGrabber)
-      grabbedObject.getParent().getComponent(Transform).position = grabbedOffset
+      grabbedObject.setParent(objectGrabber)
+	  grabbedObject.getComponent(Transform).position = grabbedOffset.clone()
+	  grabbedObject.getComponent(Creature).environment = null
 
-      //objectGrabber.getComponent(GrabableObjectComponent).grabbedObject = grabbedObject
+	  objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject = grabbedObject
     } else {
       log('already holding')
     }
   }
 
-export function dropObject(grabbedObject: IEntity) {
+export function dropObject() {
 	
 	//if (grabbedObject.getParent() != objectGrabber) return
 
 
-    let area = getClosestArea(
+    let closestArea = getClosestArea(
       Camera.instance.position
     )
 
     
-    if (area) {
-		grabbedObject.getParent().setParent(area)
-		grabbedObject.getParent().getComponent(Transform).position = new Vector3(2, 0, 2)
+    if (closestArea) {
+		
+		let grabbedObject = objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject
+		
+		// workaround ... parent should be null
+		grabbedObject.setParent(dummyPosParent)
+
+		grabbedObject.getComponent(Transform).position = closestArea.getComponent(Environment).position
 		grabbedObject.getComponent(GrabableObjectComponent).grabbed = false
-		//grabbedObject.getComponent(GrabableObjectComponent).falling = true
-		//grabbedObject.getComponent(GrabableObjectComponent).origin = 0.3
-		//grabbedObject.getComponent(GrabableObjectComponent).fraction = 0
+		grabbedObject.getComponent(Creature).environment = closestArea.getComponent(Environment)
+		
+		objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject = null
+
 	} else {
       log('not possible to drop here')
     }
@@ -140,8 +145,9 @@ export function dropObject(grabbedObject: IEntity) {
 export function getClosestArea(playerPos: Vector3){
 	for (let environment of environments.entities) {
 		let dist = Vector3.DistanceSquared(environment.getComponent(Transform).position, playerPos)
-		if (dist < 4){
+		if (dist < 25){
 			return environment
 		}
 	}
+	return null
   }

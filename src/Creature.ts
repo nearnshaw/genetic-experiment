@@ -3,6 +3,7 @@ import { ProgressBar } from "./ProgressBar"
 import { Environment } from "./Environment"
 import { Pool } from "./ObjectPool"
 import { GrabableObjectComponent, grabObject, dropObject } from "./grabableObjects";
+//import { neutral } from "./game";
 
 const MAX_CREATURES_AMOUNT = 10
 
@@ -14,7 +15,8 @@ export let chipaPool = new Pool(MAX_CREATURES_AMOUNT)
 @Component("creature")
 export class Creature {
   health: number = 100
-  healthDecaySpeed: number = 3
+  damageCounter: number = framesBetweenDamage
+  //healthDecaySpeed: number = 3
   healthBar: ProgressBar
   name: string
   oldPos: Vector3 = Vector3.Zero()
@@ -31,11 +33,14 @@ export class Creature {
   hotIconEntityTransform: Transform
   environment: Environment
 
-  constructor(entity: IEntity) {
-    this.entity = entity
+  constructor(entity: IEntity, environment: Environment) {
+	this.entity = entity
+	this.environment = environment
 
     this.transform = new Transform()
-    entity.addComponent(this.transform)
+	entity.addComponent(this.transform)
+	
+	entity.addComponent(new GrabableObjectComponent())
 
 	//let speed = 0.5
 	let size = 0.5
@@ -50,10 +55,6 @@ export class Creature {
 
     this.genome = new Genome([size, temperature, ears, eyes, feet, mouth, nose, tail, wings])
     entity.addComponent(this.genome)
-
-    // TODO :  change depending on case
-    //this.shape = basicChipaShape
-	//entity.addComponentOrReplace(this.shape)
 
     // let animator = new Animator()
     // this.walkAnim = animator.getClip("Walking")
@@ -73,7 +74,8 @@ export class Creature {
       new Transform({
         position: new Vector3(0, 1.8, 0)
       })
-    )
+	)
+	
     // engine.addEntity(nameTextEntity)
 
     let temperatureTextEntity = new Entity()
@@ -130,8 +132,6 @@ export class Creature {
 
   // coldIconEntity.alive = false
 	
-	// TODO  onclick should be on body, maybe also on parts
-
     this.UpdateScale()
 
     engine.addEntity(entity)
@@ -139,8 +139,9 @@ export class Creature {
 
   TargetRandomPosition() {
     this.oldPos = this.transform.position
-    this.oldPos.y = 0
-    this.nextPos = newCenteredRandomPos(neutralEnvironmentPosition, 8)
+	this.oldPos.y = 0
+	this.nextPos = newCenteredRandomPos( this.environment.position , 8)
+    //this.nextPos = newCenteredRandomPos( neutralEnviromnentPosition , 8)
 
     this.movementFraction = 0
 
@@ -153,13 +154,13 @@ export class Creature {
     let sonEntity = chipaPool.getEntity()
     if (!sonEntity) return
 
-    let childCreature = new Creature(sonEntity)
+    let childCreature = new Creature(sonEntity, this.environment)
     sonEntity.addComponentOrReplace(childCreature)
 
     // childCreature.environment = this.environment
-    childCreature.SetEnvironment(this.environment)
+    //childCreature.SetEnvironment(this.environment)
 
-	childCreature.transform.position = this.transform.position
+	childCreature.transform.position = this.transform.position.clone()
 	//childCreature.transform.scale = this.transform.scale
 
     childCreature.TargetRandomPosition()
@@ -264,12 +265,20 @@ export class DieSLowly implements ISystem {
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
 
-      creature.takeDamage()
-      if (creature.health <= 0) {
-        log("RIP")
-        ClearCreatureEntity(entity)
-        engine.removeEntity(entity)
-      }
+	  if (creature.environment == null) continue
+	  
+	  creature.damageCounter -= 1
+
+	  if (creature.damageCounter < 0){
+		creature.takeDamage()
+		if (creature.health <= 0) {
+		  log("RIP")
+		  ClearCreatureEntity(entity)
+		  engine.removeEntity(entity)
+		}
+		creature.damageCounter = framesBetweenDamage
+	  }
+      
     }
   }
 }
@@ -281,7 +290,7 @@ export class Wander implements ISystem {
   update(dt: number) {
     for (let entity of creatures.entities) {
 
-	  //if (entity.getComponent(GrabableObjectComponent).grabbed) continue
+	  if (entity.getComponent(GrabableObjectComponent).grabbed) continue
 
       let creature = entity.getComponent(Creature)
 
@@ -480,14 +489,14 @@ export function BuildBody(creature: IEntity){
 	body.addComponent(neutralChipaBody)
 
 
-	body.addComponent(new GrabableObjectComponent())
+	
 
 	body.addComponentOrReplace(
 		new OnClick(() => {
-			if (!body.getComponent(GrabableObjectComponent).grabbed ){
-			  grabObject(body)
+			if (!body.getParent().getComponent(GrabableObjectComponent).grabbed ){
+			  grabObject(body.getParent())
 			} else {
-			  dropObject(body)
+			  dropObject()
 			}
 		  // TODO: GET GRABBED HERE
 		})

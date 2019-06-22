@@ -18,7 +18,7 @@ engine.addEntity(parkEntity)
 
 // Instanciar environments
 let hotEnvironment = new Entity()
-let hot = new Environment(HotEnvironmentTemperature)
+let hot = new Environment(HotEnvironmentTemperature, hotEnvironmentPosition)
 hotEnvironment.addComponent(hot)
 hotEnvironment.addComponent(new PlaneShape())
 hotEnvironment.addComponent(
@@ -33,7 +33,7 @@ engine.addEntity(hotEnvironment)
 
 // Instanciar environments
 let coldEnvironment = new Entity()
-let cold = new Environment(ColdEnvironmentTemperature)
+let cold = new Environment(ColdEnvironmentTemperature, coldEnvironmentPosition)
 coldEnvironment.addComponent(cold)
 coldEnvironment.addComponent(new PlaneShape())
 coldEnvironment.addComponent(
@@ -48,7 +48,7 @@ engine.addEntity(coldEnvironment)
 
 // neutral environment
 let neutralEnvironment = new Entity()
-let neutral = new Environment(20)
+export let neutral = new Environment(20, neutralEnvironmentPosition)
 neutralEnvironment.addComponent(neutral)
 neutralEnvironment.addComponent(new PlaneShape())
 neutralEnvironment.addComponent(
@@ -170,11 +170,12 @@ thermometer.setParent(machine)
 
 // Instantiate first creature
 let adamEntity = chipaPool.getEntity()
-let adam = new Creature(adamEntity)
+let adam = new Creature(adamEntity, neutral)
 adamEntity.addComponent(adam)
 adam.transform.position = new Vector3(24, 0, 24)
 adam.TargetRandomPosition()
-adam.SetEnvironment(neutral)
+//adam.SetEnvironment(neutral)
 BuildBody(adamEntity)
 adam.UpdateTemperatureText()
 adam.UpdateScale()
+
