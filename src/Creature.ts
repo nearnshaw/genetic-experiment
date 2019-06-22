@@ -2,6 +2,7 @@ import { Genome, GeneType } from "./Genome"
 import { ProgressBar } from "./ProgressBar"
 import { Environment } from "./Environment"
 import { Pool } from "./ObjectPool"
+import { GrabableObjectComponent, grabObject, dropObject } from "./grabableObjects";
 
 const MAX_CREATURES_AMOUNT = 10
 
@@ -24,7 +25,7 @@ export class Creature {
   genome: Genome
   shape: GLTFShape
   temperatureText: TextShape
-  walkAnim: AnimationState
+  //walkAnim: AnimationState
   entity: IEntity
   coldIconEntityTransform: Transform
   hotIconEntityTransform: Transform
@@ -54,9 +55,9 @@ export class Creature {
     //this.shape = basicChipaShape
 	//entity.addComponentOrReplace(this.shape)
 
-    let animator = new Animator()
-    this.walkAnim = animator.getClip("Walking")
-    entity.addComponent(animator)
+    // let animator = new Animator()
+    // this.walkAnim = animator.getClip("Walking")
+    // entity.addComponent(animator)
 
     let nameTextEntity = new Entity()
     nameTextEntity.setParent(entity)
@@ -130,12 +131,6 @@ export class Creature {
   // coldIconEntity.alive = false
 	
 	// TODO  onclick should be on body, maybe also on parts
-
-    /* entity.addComponentOrReplace(
-      new OnClick(() => {
-        // TODO: GET GRABBED HERE
-      })
-    ) */
 
     this.UpdateScale()
 
@@ -285,6 +280,9 @@ export class Wander implements ISystem {
 
   update(dt: number) {
     for (let entity of creatures.entities) {
+
+	  //if (entity.getComponent(GrabableObjectComponent).grabbed) continue
+
       let creature = entity.getComponent(Creature)
 
       if (creature.movementPauseTimer > 0) {
@@ -322,9 +320,9 @@ export class Wander implements ISystem {
 
       // reached destination
       if (creature.movementFraction == 1) {
-        creature.walkAnim.stop()
+        //creature.walkAnim.stop()
 
-        creature.movementPauseTimer = Math.random() * 5
+        creature.movementPauseTimer = Math.random() * 20
 
         let minDistanceTraveledForBreeding = 3
         if (
@@ -481,6 +479,21 @@ export function BuildBody(creature: IEntity){
 	body.setParent(creature)
 	body.addComponent(neutralChipaBody)
 
+
+	body.addComponent(new GrabableObjectComponent())
+
+	body.addComponentOrReplace(
+		new OnClick(() => {
+			if (!body.getComponent(GrabableObjectComponent).grabbed ){
+			  grabObject(body)
+			} else {
+			  dropObject(body)
+			}
+		  // TODO: GET GRABBED HERE
+		})
+	  ) 
+
+
 	if (temperature < -30) {
 		let coat = new Entity()
 		coat.addComponent(winterChipaBody2)
@@ -606,3 +619,4 @@ export function BuildBody(creature: IEntity){
 
 
 }
+

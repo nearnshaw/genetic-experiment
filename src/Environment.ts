@@ -8,3 +8,5 @@ export class Environment {
     this.temperature = temp
   }
 }
+
+export const environments = engine.getComponentGroup(Environment)

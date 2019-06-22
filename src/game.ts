@@ -1,9 +1,12 @@
 import { Creature, chipaPool, creatures, BuildBody } from "./Creature"
 import { Environment } from "./Environment"
 import { ButtonData, PushButton } from "./Button"
+import { ObjectGrabberSystem } from "./grabableObjects";
 
 // systems
 engine.addSystem(new PushButton())
+
+engine.addSystem(new ObjectGrabberSystem())
 
 // Instanciar Terreno
 let parkEntity = new Entity()
@@ -21,7 +24,7 @@ hotEnvironment.addComponent(new PlaneShape())
 hotEnvironment.addComponent(
   new Transform({
     position: hotEnvironmentPosition,
-    scale: new Vector3(8, 8, 1),
+    scale: new Vector3(8, 8, 8),
     rotation: Quaternion.Euler(90, 0, 0)
   })
 )
@@ -36,7 +39,7 @@ coldEnvironment.addComponent(new PlaneShape())
 coldEnvironment.addComponent(
   new Transform({
     position: coldEnvironmentPosition,
-    scale: new Vector3(8, 8, 1),
+    scale: new Vector3(8, 8, 8),
     rotation: Quaternion.Euler(90, 0, 0)
   })
 )
@@ -51,8 +54,8 @@ neutralEnvironment.addComponent(new PlaneShape())
 neutralEnvironment.addComponent(
   new Transform({
     position: neutralEnvironmentPosition,
-    scale: new Vector3(16, 16, 1),
-    rotation: Quaternion.Euler(90, 0, 0)
+    scale: new Vector3(16, 16, 16),
+    rotation: Quaternion.Euler(270, 0, 0)
   })
 )
 engine.addEntity(neutralEnvironment)
