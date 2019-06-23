@@ -63,6 +63,9 @@ neutralEnvironment.addComponent(
 neutral.onCreaturesCountUpdated = function(creaturesCount) {
   if(creaturemeterText)
     creaturemeterText.value = creaturesCount + "/10"
+
+  if(creaturemeterText)
+    monitorCreaturemeterText.value = creaturesCount + "/10"
 }
 
 engine.addEntity(neutralEnvironment)
@@ -79,7 +82,6 @@ adam.UpdateScale()
 
 // Console Machine
 let machine = new Entity()
-// machine.addComponent(new BoxShape())
 machine.addComponent(
   new Transform({
     position: new Vector3(26, -0.5, 40),
@@ -88,7 +90,6 @@ machine.addComponent(
   })
 )
 engine.addEntity(machine)
-// machine.setParent(neutralEnvironment)
 
 let tempUp = new Entity()
 tempUp.addComponent(
@@ -114,6 +115,7 @@ tempUp.addComponent(
 
     let tempInC = neutral.temperature.toString()
     temperatureText.value = tempInC + "°"
+    monitorTempText.value = tempInC + "°"
 
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
@@ -154,6 +156,7 @@ tempDown.addComponent(
 
     let tempInC = neutral.temperature.toString()
     temperatureText.value = tempInC + "°"
+    monitorTempText.value = tempInC + "°"
 
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
@@ -224,3 +227,55 @@ creaturemeterIconEntity.addComponent(new Transform({
 creaturemeterIconEntity.addComponent(new PlaneShape())
 creaturemeterIconEntity.addComponent(chippaIconMaterial)
 engine.addEntity(creaturemeterIconEntity)
+
+// Big Monitor Info
+let monitorThermometer = new Entity()
+let monitorTempText = new TextShape(neutral.temperature.toString() + "°")
+monitorTempText.fontSize = 15
+monitorTempText.hTextAlign = "center"
+monitorTempText.vTextAlign = "center"
+monitorThermometer.addComponent(monitorTempText)
+
+monitorThermometer.addComponent(
+  new Transform({
+    position: new Vector3(3.1, 6.7, 38.5),
+    rotation: Quaternion.Euler(0, -90, 0)
+  })
+)
+engine.addEntity(monitorThermometer)
+
+let monitorThermometerIconEntity = new Entity()
+monitorThermometerIconEntity.setParent(monitorThermometer)
+monitorThermometerIconEntity.addComponent(new Transform({
+  position: new Vector3(-3, 0, 0),
+  scale: new Vector3(1.5, 1.5, 0)
+}))
+monitorThermometerIconEntity.addComponent(new PlaneShape())
+monitorThermometerIconEntity.addComponent(neutralIconMaterial)
+engine.addEntity(monitorThermometerIconEntity)
+
+let monitorCreaturemeter = new Entity()
+export let monitorCreaturemeterText = new TextShape("1/10")
+monitorCreaturemeterText.fontSize = 15
+monitorCreaturemeterText.hTextAlign = "center"
+monitorCreaturemeterText.vTextAlign = "center"
+monitorCreaturemeter.addComponent(monitorCreaturemeterText)
+
+monitorCreaturemeter.addComponent(
+  new Transform({
+    position: new Vector3(3.1, 4.7, 38.5),
+    rotation: Quaternion.Euler(0, -90, 0)
+  })
+)
+engine.addEntity(monitorCreaturemeter)
+
+let monitorCreaturemeterIconEntity = new Entity()
+monitorCreaturemeterIconEntity.setParent(monitorCreaturemeter)
+monitorCreaturemeterIconEntity.addComponent(new Transform({
+  position: new Vector3(-3, 0, 0),
+  scale: new Vector3(1.5, 1.5, 0),
+  rotation: Quaternion.Euler(0, 0, 180)
+}))
+monitorCreaturemeterIconEntity.addComponent(new PlaneShape())
+monitorCreaturemeterIconEntity.addComponent(chippaIconMaterial)
+engine.addEntity(monitorCreaturemeterIconEntity)
