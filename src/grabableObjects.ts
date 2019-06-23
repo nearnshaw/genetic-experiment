@@ -4,18 +4,10 @@ import { Creature } from "./Creature";
 @Component('grabableObjectComponent')
 export class GrabableObjectComponent {
   grabbed: boolean = false
-  //falling: boolean = false
-  //origin: number = 0.4
-  //target: number = 0
-  //fraction: number = 0
   constructor(
     grabbed: boolean = false,
-	//falling: boolean = false,
-	//origin: number = 0,
-	//fraction: number = 0
   ) {
     this.grabbed = grabbed
-    //this.falling = falling
   }
 }
 
@@ -24,8 +16,9 @@ export class ObjectGrabberComponent {
   grabbedObject: IEntity = null
 }
 
-let grabbedOffset = new Vector3(0.5, 0.5, 0)
+let grabbedOffset = new Vector3(0.5, 1, 0)
 
+// workaround since `setParent(null)` won't work
 let dummyPosParent = new Entity()
 engine.addEntity(dummyPosParent)
 
@@ -53,27 +46,6 @@ export const grabbableObjects = engine.getComponentGroup(
 
 
 
-// export class DropObjects implements ISystem {
-//   update(dt: number) {
-//     for (let object of grabbableObjects.entities) {
-//       let ObjectComponent = object.getComponent(GrabableObjectComponent)
-//       let transform = object.getComponent(Transform)
-
-//       if (ObjectComponent.falling) {
-//         ObjectComponent.fraction += dt * 3
-//         if (ObjectComponent.fraction > 1) {
-//           ObjectComponent.falling = false
-//         }
-//         transform.position.y = Scalar.Lerp(
-//           ObjectComponent.origin,
-//           ObjectComponent.target,
-//           ObjectComponent.fraction
-//         )
-//       }
-//     }
-//   }
-// }
-
 export class ObjectGrabberSystem implements ISystem {
   //transform: Transform
   //objectGrabberComponent: ObjectGrabberComponent
@@ -87,7 +59,7 @@ export class ObjectGrabberSystem implements ISystem {
   update(deltaTime: number) {
 	  if (objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject == null) {
 		  //log("no children")
-		  return false
+		  return
 		}
 
 	  let transform = objectGrabber.getComponent(Transform)

@@ -187,11 +187,16 @@ export class Creature {
   }
 
   UpdateScale(){
-    let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, this.genome.genes[GeneType.size])
+
+	let sizeFactor = Math.abs((-1*(this.genome.genes[GeneType.speed]))+ 1)
+	let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, sizeFactor)
+	//  to make size inverse to speed... 
+	//  speed 1 -> size 0,  speed 0 -> size 2, speed 0.5 -> size 1 
 
     this.transform.scale.x = size
     this.transform.scale.y = size
-    this.transform.scale.z = size
+	this.transform.scale.z = size
+
   }
 
   UpdateHealthbar() {
@@ -227,21 +232,20 @@ export class Creature {
   takeDamage() {
     let temperatureDif = this.GetTemperatureDif()
 
-    if (temperatureDif > MinTemperatureDiffForDamage) {
-      let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
+	if (temperatureDif <= MinTemperatureDiffForDamage)  return
+	
+	let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
 
-	  let sizeFactor = this.genome.genes[GeneType.size]*2
-	  
-	  // neutral 0.5 size -> /1*1 .. no effect
-	  // large 1 size -> /2*2  ->   less damage
-	  // small 0 size -> /0.5*0.5  ->  more damage
-	  let damageForSize = temperatureDamage / (sizeFactor * sizeFactor)
-	  this.health -= damageForSize
+	
+	//  to make damage proportional to speed  (more speed, smaller, more fragile)
+	let damageForSize = temperatureDamage * this.genome.genes[GeneType.speed]
+	
+	this.health -= damageForSize
 
-      if (this.health < 0) this.health = 0
+	if (this.health < 0) this.health = 0
 
-      this.UpdateHealthbar()
-    }
+	this.UpdateHealthbar()
+
   }
 
   GetTemperatureDif(){
@@ -302,9 +306,7 @@ export class Wander implements ISystem {
 
       if (creature.movementFraction >= 1) continue
 
-	  let speed = Math.abs((-1*(creature.genome.genes[GeneType.size]))+ 1)
-	  //  to make speed inverse to size... 
-	  //  size 1 -> speed 0,  size 0 -> speed 1, size 0.5 -> speed 0.5 
+	  let speed = creature.genome.genes[GeneType.speed]
 
 
     //   if (!creature.walkAnim.playing) {
@@ -329,8 +331,7 @@ export class Wander implements ISystem {
 
       // reached destination
       if (creature.movementFraction == 1) {
-        //creature.walkAnim.stop()
-
+       
         creature.movementPauseTimer = Math.random() * 20
 
         let minDistanceTraveledForBreeding = 3

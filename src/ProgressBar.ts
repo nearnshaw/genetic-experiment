@@ -1,3 +1,6 @@
+let planeShape = new PlaneShape()
+
+
 @Component("progressBar")
 export class ProgressBar {
   value: number = 0
@@ -10,7 +13,7 @@ export class ProgressBar {
     this.entity = entity
 
     this.foregroundEntity = new Entity()
-    this.foregroundEntity.addComponent(new PlaneShape())
+    this.foregroundEntity.addComponent(planeShape)
     this.foregroundEntity.setParent(entity)
 
     this.foregroundTransform = new Transform({
@@ -30,4 +33,13 @@ export class ProgressBar {
     this.foregroundTransform.scale.x = width
     this.foregroundTransform.position.x = -this.fullLength / 2 + width / 2
   }
+
+  //  TODO   when visible property works again
+//   Hide(){
+// 	this.entity.getComponent(Shape).visible = false
+//   }
+
+//   Display(){
+// 	this.entity.getComponent(Shape).visible = true
+//   }
 }
