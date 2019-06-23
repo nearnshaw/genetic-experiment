@@ -34,16 +34,15 @@ export class Creature {
   environment: Environment
 
   constructor(entity: IEntity, environment: Environment) {
-	this.entity = entity
-	this.environment = environment
+    this.entity = entity
 
     this.transform = new Transform()
-	entity.addComponent(this.transform)
+	  entity.addComponent(this.transform)
 	
-	entity.addComponent(new GrabableObjectComponent())
+	  entity.addComponent(new GrabableObjectComponent())
 
-	//let speed = 0.5
-	let size = 0.5
+    //let speed = 0.5
+    let size = 0.5
     let temperature = 20
     let ears = 0.5
     let eyes = 0.5
@@ -74,7 +73,7 @@ export class Creature {
       new Transform({
         position: new Vector3(0, 1.8, 0)
       })
-	)
+	  )
 	
     // engine.addEntity(nameTextEntity)
 
@@ -106,32 +105,34 @@ export class Creature {
     healthBarEntity.addComponent(this.healthBar)
     // engine.addEntity(healthBarEntity)
   
-  let coldIconEntity = new Entity()
-  coldIconEntity.setParent(temperatureTextEntity)
-  this.coldIconEntityTransform = new Transform({
+    let coldIconEntity = new Entity()
+    coldIconEntity.setParent(temperatureTextEntity)
+    this.coldIconEntityTransform = new Transform({
                                   position: new Vector3(0.45, 0, 0),
                                   rotation: Quaternion.Euler(0, 0, 0),
                                   scale: new Vector3(0, 0, 0)
                                 })
-  coldIconEntity.addComponent(this.coldIconEntityTransform)
-  coldIconEntity.addComponent(new PlaneShape())
-  coldIconEntity.addComponent(coldIconMaterial)
-  // engine.addEntity(this.coldIconEntity)
+    coldIconEntity.addComponent(this.coldIconEntityTransform)
+    coldIconEntity.addComponent(new PlaneShape())
+    coldIconEntity.addComponent(coldIconMaterial)
+    // engine.addEntity(this.coldIconEntity)
 
-  let hotIconEntity = new Entity()
-  hotIconEntity.setParent(temperatureTextEntity)
-  this.hotIconEntityTransform = new Transform({
+    let hotIconEntity = new Entity()
+    hotIconEntity.setParent(temperatureTextEntity)
+    this.hotIconEntityTransform = new Transform({
                                 position: new Vector3(-0.45, 0, 0),
                                 rotation: Quaternion.Euler(0, 0, 0),
                                 scale: new Vector3(0, 0, 0)
                               })
-  hotIconEntity.addComponent(this.hotIconEntityTransform)
-  hotIconEntity.addComponent(new PlaneShape())
-  hotIconEntity.addComponent(hotIconMaterial)
-  // engine.addEntity(this.coldIconEntity)
+    hotIconEntity.addComponent(this.hotIconEntityTransform)
+    hotIconEntity.addComponent(new PlaneShape())
+    hotIconEntity.addComponent(hotIconMaterial)
+    // engine.addEntity(this.coldIconEntity)
 
-  // coldIconEntity.alive = false
-	
+    // coldIconEntity.alive = false
+
+    this.SetEnvironment(environment)
+    
     this.UpdateScale()
 
     engine.addEntity(entity)
@@ -256,7 +257,13 @@ export class Creature {
   }
 
   SetEnvironment(newEnvironment: Environment){
+    if(!newEnvironment || newEnvironment == this.environment) return
+
+    if(this.environment) this.environment.removeCreature()
+
     this.environment = newEnvironment
+
+    this.environment.addCreature()
 
     this.UpdateTemperatureIcons()
   }
@@ -269,20 +276,22 @@ export class DieSLowly implements ISystem {
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
 
-	  if (creature.environment == null) continue
+	    if (creature.environment == null) continue
 	  
-	  creature.damageCounter -= 1
+	    creature.damageCounter -= 1
 
-	  if (creature.damageCounter < 0){
-		creature.takeDamage()
-		if (creature.health <= 0) {
-		  log("RIP")
-		  ClearCreatureEntity(entity)
-		  engine.removeEntity(entity)
-		}
-		creature.damageCounter = framesBetweenDamage
-	  }
-      
+	    if (creature.damageCounter < 0) {
+        creature.takeDamage()
+
+        if (creature.health <= 0) {
+          log("RIP")
+          creature.environment.removeCreature()
+          ClearCreatureEntity(entity)
+          engine.removeEntity(entity)
+        }
+
+        creature.damageCounter = framesBetweenDamage
+      }
     }
   }
 }
@@ -368,7 +377,7 @@ function RandomizeName() {
   if (randomNumber < 0.01) {
     return "Pumbi"
   } else if (randomNumber < 0.05) {
-    return "Kalifa"
+    return "Sasha"
   } else if (randomNumber < 0.1) {
     return "Pumpi"
   } else if (randomNumber < 0.15) {

@@ -56,6 +56,10 @@ let neutralIconTex = new Texture("images/thermometer.png")
 let neutralIconMaterial = new Material()
 neutralIconMaterial.alphaTexture = neutralIconMaterial.albedoTexture = neutralIconTex
 
+let chippaIconTex = new Texture("images/Chipaicon.png")
+let chippaIconMaterial = new Material()
+chippaIconMaterial.alphaTexture = chippaIconMaterial.albedoTexture = chippaIconTex
+
 let redMaterial = new Material()
 redMaterial.albedoColor = Color3.Red()
 let yellowMaterial = new Material()
