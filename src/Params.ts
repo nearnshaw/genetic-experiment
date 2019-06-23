@@ -46,6 +46,10 @@ let hotIconTex = new Texture("images/hot-thermometer.png")
 let hotIconMaterial = new Material()
 hotIconMaterial.alphaTexture = hotIconMaterial.albedoTexture = hotIconTex
 
+let neutralIconTex = new Texture("images/thermometer.png")
+let neutralIconMaterial = new Material()
+neutralIconMaterial.alphaTexture = neutralIconMaterial.albedoTexture = neutralIconTex
+
 let redMaterial = new Material()
 redMaterial.albedoColor = Color3.Red()
 let yellowMaterial = new Material()
