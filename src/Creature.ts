@@ -239,7 +239,7 @@ export class Creature {
 	
 	//  to make damage proportional to speed  (more speed, smaller, more fragile)
 	let damageForSize = temperatureDamage * this.genome.genes[GeneType.speed]
-	
+
 	this.health -= damageForSize
 
 	if (this.health < 0) this.health = 0
@@ -326,13 +326,14 @@ export class Wander implements ISystem {
         )
       
       this.sinTime += dt * speed * 4
-      let verticalOffset = new Vector3(0, Math.abs(Math.sin(this.sinTime)) * Math.abs(creature.genome.genes[GeneType.temperature]/30), 0)
-      creature.transform.position = Vector3.Add(creature.transform.position, verticalOffset)
+      let verticalOffset = Math.abs(Math.sin(this.sinTime)) * Math.abs(creature.genome.genes[GeneType.temperature]/30)
+      creature.transform.position.y = verticalOffset
 
       // reached destination
       if (creature.movementFraction == 1) {
        
-        creature.movementPauseTimer = Math.random() * 20
+		creature.movementPauseTimer = Math.random() * 20
+		creature.transform.position.y = 0
 
         let minDistanceTraveledForBreeding = 3
         if (
