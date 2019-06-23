@@ -18,7 +18,7 @@ engine.addEntity(parkEntity)
 
 // Instanciar environments
 let hotEnvironment = new Entity()
-let hot = new Environment(HotEnvironmentTemperature, hotEnvironmentPosition)
+let hot = new Environment(HotEnvironmentTemperature, hotEnvironmentPosition, 4)
 hotEnvironment.addComponent(hot)
 hotEnvironment.addComponent(new PlaneShape())
 hotEnvironment.addComponent(
@@ -33,7 +33,7 @@ engine.addEntity(hotEnvironment)
 
 // Instanciar environments
 let coldEnvironment = new Entity()
-let cold = new Environment(ColdEnvironmentTemperature, coldEnvironmentPosition)
+let cold = new Environment(ColdEnvironmentTemperature, coldEnvironmentPosition, 4)
 coldEnvironment.addComponent(cold)
 coldEnvironment.addComponent(new PlaneShape())
 coldEnvironment.addComponent(
@@ -48,7 +48,7 @@ engine.addEntity(coldEnvironment)
 
 // neutral environment
 let neutralEnvironment = new Entity()
-export let neutral = new Environment(20, neutralEnvironmentPosition)
+export let neutral = new Environment(20, neutralEnvironmentPosition, 8)
 neutralEnvironment.addComponent(neutral)
 neutralEnvironment.addComponent(new PlaneShape())
 neutralEnvironment.addComponent(
