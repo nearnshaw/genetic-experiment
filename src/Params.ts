@@ -36,8 +36,9 @@ let MinCreatureScale = 0.25
 // Creatures at max temperature (100) will have this scale factor
 let MaxCreatureScale = 2.3
 
-let ColdEnvironmentTemperature = -40
-let HotEnvironmentTemperature = 70
+
+let ColdEnvironmentTemperature = -30
+let HotEnvironmentTemperature = 60
 
 let neutralEnvironmentPosition = new Vector3(16, 0.01, 40)
 let hotEnvironmentPosition = new Vector3(48, 0.01, 32)
@@ -50,6 +51,10 @@ coldIconMaterial.alphaTexture = coldIconMaterial.albedoTexture = coldIconTex
 let hotIconTex = new Texture("images/hot-thermometer.png")
 let hotIconMaterial = new Material()
 hotIconMaterial.alphaTexture = hotIconMaterial.albedoTexture = hotIconTex
+
+let neutralIconTex = new Texture("images/thermometer.png")
+let neutralIconMaterial = new Material()
+neutralIconMaterial.alphaTexture = neutralIconMaterial.albedoTexture = neutralIconTex
 
 let redMaterial = new Material()
 redMaterial.albedoColor = Color3.Red()

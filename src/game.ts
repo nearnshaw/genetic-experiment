@@ -61,10 +61,10 @@ neutralEnvironment.addComponent(
 engine.addEntity(neutralEnvironment)
 
 let machine = new Entity()
-machine.addComponent(new BoxShape())
+// machine.addComponent(new BoxShape())
 machine.addComponent(
   new Transform({
-    position: new Vector3(26.5, -0.5, 40),
+    position: new Vector3(26, -0.5, 40),
     scale: new Vector3(2, 3, 6),
     rotation: Quaternion.Euler(0, 0, -35)
   })
@@ -75,8 +75,8 @@ engine.addEntity(machine)
 let tempUp = new Entity()
 tempUp.addComponent(
   new Transform({
-    position: new Vector3(-0.3, 0.4, -0.3),
-    scale: new Vector3(1.3, 0.5, 0.5),
+    position: new Vector3(-0.1, 0.35, -0.325),
+    scale: new Vector3(0.7, 0.5, 0.2),
     rotation: Quaternion.Euler(0, 0, 0)
   })
 )
@@ -114,8 +114,8 @@ tempUp.setParent(machine)
 let tempDown = new Entity()
 tempDown.addComponent(
   new Transform({
-    position: new Vector3(0.3, 0.4, -0.3),
-    scale: new Vector3(1.3, 0.5, 0.5),
+    position: new Vector3(0.3, 0.35, -0.325),
+    scale: new Vector3(0.7, 0.5, 0.2),
     rotation: Quaternion.Euler(0, 0, 0)
   })
 )
@@ -161,12 +161,23 @@ thermometer.addComponent(temperatureText)
 thermometer.addComponent(
   new Transform({
     scale: new Vector3(0.2, 0.5, 0.8),
-    position: new Vector3(0, 0.55, -0.3),
+    position: new Vector3(0, 0.575, 0.15),
     rotation: Quaternion.Euler(90, 0, 90)
   })
 )
 engine.addEntity(thermometer)
 thermometer.setParent(machine)
+
+let thermometerIconEntity = new Entity()
+thermometerIconEntity.setParent(thermometer)
+thermometerIconEntity.addComponent(new Transform({
+  position: new Vector3(-1, 0, 0),
+  rotation: Quaternion.Euler(0, 0, 0),
+  scale: new Vector3(0.5, 0.5, 0)
+}))
+thermometerIconEntity.addComponent(new PlaneShape())
+thermometerIconEntity.addComponent(neutralIconMaterial)
+engine.addEntity(thermometerIconEntity)
 
 // Instantiate first creature
 let adamEntity = chipaPool.getEntity()
