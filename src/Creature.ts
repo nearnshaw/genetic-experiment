@@ -256,7 +256,13 @@ export class Creature {
   }
 
   SetEnvironment(newEnvironment: Environment){
+    if(!newEnvironment || newEnvironment == this.environment) return
+
+    if(this.environment) this.environment.removeCreature()
+
     this.environment = newEnvironment
+
+    this.environment.addCreature()
 
     this.UpdateTemperatureIcons()
   }
@@ -272,6 +278,8 @@ export class DieSLowly implements ISystem {
       creature.takeDamage()
       if (creature.health <= 0) {
         log("RIP")
+        creature.environment.removeCreature()
+
         ClearCreatureEntity(entity)
         engine.removeEntity(entity)
       }
@@ -359,7 +367,7 @@ function RandomizeName() {
   if (randomNumber < 0.01) {
     return "Pumbi"
   } else if (randomNumber < 0.05) {
-    return "Kalifa"
+    return "Sasha"
   } else if (randomNumber < 0.1) {
     return "Pumpi"
   } else if (randomNumber < 0.15) {

@@ -55,8 +55,27 @@ neutralEnvironment.addComponent(
     rotation: Quaternion.Euler(90, 0, 0)
   })
 )
+
+// Configure callback for updating texts when the creatures count change
+neutral.onCreaturesCountUpdated = function(creaturesCount) {
+  if(creaturemeterText)
+    creaturemeterText.value = creaturesCount + "/10"
+}
+
 engine.addEntity(neutralEnvironment)
 
+// Instantiate first creature
+let adamEntity = chipaPool.getEntity()
+let adam = new Creature(adamEntity)
+adamEntity.addComponent(adam)
+adam.transform.position = new Vector3(24, 0, 24)
+adam.TargetRandomPosition()
+adam.SetEnvironment(neutral)
+BuildBody(adamEntity)
+adam.UpdateTemperatureText()
+adam.UpdateScale()
+
+// Console Machine
 let machine = new Entity()
 // machine.addComponent(new BoxShape())
 machine.addComponent(
@@ -150,15 +169,15 @@ tempDown.setParent(machine)
 
 let thermometer = new Entity()
 let temperatureText = new TextShape(neutral.temperature.toString() + "°")
-temperatureText.fontSize = 5
+temperatureText.fontSize = 4
 temperatureText.hTextAlign = "center"
 temperatureText.vTextAlign = "center"
 thermometer.addComponent(temperatureText)
 
 thermometer.addComponent(
   new Transform({
-    scale: new Vector3(0.2, 0.5, 0.8),
     position: new Vector3(0, 0.575, 0.15),
+    scale: new Vector3(0.2, 0.5, 0.8),
     rotation: Quaternion.Euler(90, 0, 90)
   })
 )
@@ -176,13 +195,30 @@ thermometerIconEntity.addComponent(new PlaneShape())
 thermometerIconEntity.addComponent(neutralIconMaterial)
 engine.addEntity(thermometerIconEntity)
 
-// Instantiate first creature
-let adamEntity = chipaPool.getEntity()
-let adam = new Creature(adamEntity)
-adamEntity.addComponent(adam)
-adam.transform.position = new Vector3(24, 0, 24)
-adam.TargetRandomPosition()
-adam.SetEnvironment(neutral)
-BuildBody(adamEntity)
-adam.UpdateTemperatureText()
-adam.UpdateScale()
+let creaturemeter = new Entity()
+export let creaturemeterText = new TextShape("1/10")
+creaturemeterText.fontSize = 4
+creaturemeterText.hTextAlign = "center"
+creaturemeterText.vTextAlign = "center"
+creaturemeter.addComponent(creaturemeterText)
+
+creaturemeter.addComponent(
+  new Transform({
+    position: new Vector3(0.325, 0.57, 0.15),
+    scale: new Vector3(0.2, 0.5, 0.8),
+    rotation: Quaternion.Euler(90, 0, 90)
+  })
+)
+engine.addEntity(creaturemeter)
+creaturemeter.setParent(machine)
+
+let creaturemeterIconEntity = new Entity()
+creaturemeterIconEntity.setParent(creaturemeter)
+creaturemeterIconEntity.addComponent(new Transform({
+  position: new Vector3(-1, 0, 0),
+  scale: new Vector3(0.5, 0.5, 0),
+  rotation: Quaternion.Euler(0, 0, 180)
+}))
+creaturemeterIconEntity.addComponent(new PlaneShape())
+creaturemeterIconEntity.addComponent(chippaIconMaterial)
+engine.addEntity(creaturemeterIconEntity)
