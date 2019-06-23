@@ -1,7 +1,7 @@
 import { Creature, chipaPool, creatures, BuildBody } from "./Creature"
 import { Environment } from "./Environment"
 import { ButtonData, PushButton } from "./Button"
-import { ObjectGrabberSystem } from "./grabableObjects";
+import { ObjectGrabberSystem, dropObject } from "./grabableObjects";
 
 // systems
 engine.addSystem(new PushButton())
@@ -29,6 +29,11 @@ hotEnvironment.addComponent(
   })
 )
 hotEnvironment.addComponent(hotMaterial)
+hotEnvironment.addComponent(
+  new OnClick(e => {
+    dropObject(hot)
+  })
+)
 engine.addEntity(hotEnvironment)
 
 // Instanciar environments
@@ -44,6 +49,11 @@ coldEnvironment.addComponent(
   })
 )
 coldEnvironment.addComponent(coldMaterial)
+coldEnvironment.addComponent(
+  new OnClick(e => {
+    dropObject(cold)
+  })
+)
 engine.addEntity(coldEnvironment)
 
 // neutral environment
@@ -68,6 +78,11 @@ neutral.onCreaturesCountUpdated = function(creaturesCount) {
     monitorCreaturemeterText.value = creaturesCount + "/10"
 }
 
+neutralEnvironment.addComponent(
+  new OnClick(e => {
+    dropObject(neutral)
+  })
+)
 engine.addEntity(neutralEnvironment)
 
 // Instantiate first creature

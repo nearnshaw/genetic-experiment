@@ -25,7 +25,7 @@ let framesBetweenDamage = 15
 // Coefficient to multiply damage done on every frame
 let DamageCoeff = 0.005 * framesBetweenDamage
 
-
+let grabbedObject: IEntity = null 
 
 // Minimum temperature diff for the creature to start receiving damage
 let MinTemperatureDiffForDamage = 8

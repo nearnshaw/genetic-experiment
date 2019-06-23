@@ -32,14 +32,16 @@ export class Creature {
   coldIconEntityTransform: Transform
   hotIconEntityTransform: Transform
   environment: Environment
+  grabableObjectComponent: GrabableObjectComponent
 
   constructor(entity: IEntity, environment: Environment) {
     this.entity = entity
 
     this.transform = new Transform()
 	  entity.addComponent(this.transform)
-	
-	  entity.addComponent(new GrabableObjectComponent())
+  
+    this.grabableObjectComponent = new GrabableObjectComponent() 
+	  entity.addComponent(this.grabableObjectComponent)
 
     //let speed = 0.5
     let size = 0.5
@@ -308,9 +310,9 @@ export class Wander implements ISystem {
   update(dt: number) {
     for (let entity of creatures.entities) {
 
-	  if (entity.getComponent(GrabableObjectComponent).grabbed) continue
-
       let creature = entity.getComponent(Creature)
+      
+      if (creature.grabableObjectComponent.grabbed) continue
 
       if (creature.movementPauseTimer > 0) {
         creature.movementPauseTimer -= dt
@@ -512,9 +514,10 @@ export function BuildBody(creature: IEntity){
 		new OnClick(() => {
 			if (!body.getParent().getComponent(GrabableObjectComponent).grabbed ){
 			  grabObject(body.getParent())
-			} else {
-			  dropObject()
-			}
+      }
+      // else {
+			//   dropObject()
+			// }
 		  // TODO: GET GRABBED HERE
 		})
 	  ) 

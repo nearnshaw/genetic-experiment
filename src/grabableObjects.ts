@@ -13,7 +13,6 @@ export class GrabableObjectComponent {
 
 @Component('objectGrabberComponent')
 export class ObjectGrabberComponent {
-  grabbedObject: IEntity = null
 }
 
 let grabbedOffset = new Vector3(0.5, 1, 0)
@@ -57,7 +56,7 @@ export class ObjectGrabberSystem implements ISystem {
   }
 
   update(deltaTime: number) {
-	  if (objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject == null) {
+	  if (grabbedObject == null) {
 		  //log("no children")
 		  return
 		}
@@ -69,44 +68,38 @@ export class ObjectGrabberSystem implements ISystem {
   }
 }
 
-export function grabObject(grabbedObject: IEntity) {
+export function grabObject(newGrabbedObject: IEntity) {
    
     if (!objectGrabber.children[0]) {
       log('grabbed object')
       
-      grabbedObject.getComponent(GrabableObjectComponent).grabbed = true
-      grabbedObject.setParent(objectGrabber)
-	  grabbedObject.getComponent(Transform).position = grabbedOffset.clone()
-	  grabbedObject.getComponent(Creature).SetEnvironment(null)
+      newGrabbedObject.getComponent(GrabableObjectComponent).grabbed = true
+      newGrabbedObject.setParent(objectGrabber)
+      newGrabbedObject.getComponent(Transform).position = grabbedOffset.clone()
+      newGrabbedObject.getComponent(Creature).SetEnvironment(null)
 
-	  objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject = grabbedObject
+	    grabbedObject = newGrabbedObject
     } else {
       log('already holding')
     }
   }
 
-export function dropObject() {
+export function dropObject(environment: Environment = null) {
 	
 	//if (grabbedObject.getParent() != objectGrabber) return
+    if(!grabbedObject) return
 
-
-    let closestArea = getClosestArea(
-      Camera.instance.position
-    )
-
+    environment = environment? environment : getClosestArea(Camera.instance.position)!.getComponent(Environment)
     
-    if (closestArea) {
-		
-		let grabbedObject = objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject
-		
+    if (environment) {
 		// workaround ... parent should be null
 		grabbedObject.setParent(dummyPosParent)
 
-		grabbedObject.getComponent(Transform).position = closestArea.getComponent(Environment).position
+		grabbedObject.getComponent(Transform).position = environment.position
 		grabbedObject.getComponent(GrabableObjectComponent).grabbed = false
-		grabbedObject.getComponent(Creature).SetEnvironment(closestArea.getComponent(Environment))
+		grabbedObject.getComponent(Creature).SetEnvironment(environment)
 		
-		objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject = null
+		grabbedObject = null
 
 	} else {
       log('not possible to drop here')
