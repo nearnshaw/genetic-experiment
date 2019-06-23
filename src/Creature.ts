@@ -2,6 +2,8 @@ import { Genome, GeneType } from "./Genome"
 import { ProgressBar } from "./ProgressBar"
 import { Environment } from "./Environment"
 import { Pool } from "./ObjectPool"
+import { GrabableObjectComponent, grabObject, dropObject } from "./grabableObjects";
+//import { neutral } from "./game";
 
 const MAX_CREATURES_AMOUNT = 10
 
@@ -13,7 +15,8 @@ export let chipaPool = new Pool(MAX_CREATURES_AMOUNT)
 @Component("creature")
 export class Creature {
   health: number = 100
-  healthDecaySpeed: number = 3
+  damageCounter: number = framesBetweenDamage
+  //healthDecaySpeed: number = 3
   healthBar: ProgressBar
   name: string
   oldPos: Vector3 = Vector3.Zero()
@@ -24,17 +27,20 @@ export class Creature {
   genome: Genome
   shape: GLTFShape
   temperatureText: TextShape
-  walkAnim: AnimationState
+  //walkAnim: AnimationState
   entity: IEntity
   coldIconEntityTransform: Transform
   hotIconEntityTransform: Transform
   environment: Environment
 
-  constructor(entity: IEntity) {
-    this.entity = entity
+  constructor(entity: IEntity, environment: Environment) {
+	this.entity = entity
+	this.environment = environment
 
     this.transform = new Transform()
-    entity.addComponent(this.transform)
+	entity.addComponent(this.transform)
+	
+	entity.addComponent(new GrabableObjectComponent())
 
 	//let speed = 0.5
 	let size = 0.5
@@ -50,13 +56,9 @@ export class Creature {
     this.genome = new Genome([size, temperature, ears, eyes, feet, mouth, nose, tail, wings])
     entity.addComponent(this.genome)
 
-    // TODO :  change depending on case
-    //this.shape = basicChipaShape
-	//entity.addComponentOrReplace(this.shape)
-
-    let animator = new Animator()
-    this.walkAnim = animator.getClip("Walking")
-    entity.addComponent(animator)
+    // let animator = new Animator()
+    // this.walkAnim = animator.getClip("Walking")
+    // entity.addComponent(animator)
 
     let nameTextEntity = new Entity()
     nameTextEntity.setParent(entity)
@@ -72,7 +74,8 @@ export class Creature {
       new Transform({
         position: new Vector3(0, 1.8, 0)
       })
-    )
+	)
+	
     // engine.addEntity(nameTextEntity)
 
     let temperatureTextEntity = new Entity()
@@ -129,14 +132,6 @@ export class Creature {
 
   // coldIconEntity.alive = false
 	
-	// TODO  onclick should be on body, maybe also on parts
-
-    /* entity.addComponentOrReplace(
-      new OnClick(() => {
-        // TODO: GET GRABBED HERE
-      })
-    ) */
-
     this.UpdateScale()
 
     engine.addEntity(entity)
@@ -144,8 +139,9 @@ export class Creature {
 
   TargetRandomPosition() {
     this.oldPos = this.transform.position
-    this.oldPos.y = 0
-    this.nextPos = newCenteredRandomPos(neutralEnvironmentPosition, 8)
+	this.oldPos.y = 0
+	this.nextPos = newCenteredRandomPos( this.environment.position , 8)
+    //this.nextPos = newCenteredRandomPos( neutralEnviromnentPosition , 8)
 
     this.movementFraction = 0
 
@@ -158,13 +154,13 @@ export class Creature {
     let sonEntity = chipaPool.getEntity()
     if (!sonEntity) return
 
-    let childCreature = new Creature(sonEntity)
+    let childCreature = new Creature(sonEntity, this.environment)
     sonEntity.addComponentOrReplace(childCreature)
 
     // childCreature.environment = this.environment
-    childCreature.SetEnvironment(this.environment)
+    //childCreature.SetEnvironment(this.environment)
 
-	childCreature.transform.position = this.transform.position
+	childCreature.transform.position = this.transform.position.clone()
 	//childCreature.transform.scale = this.transform.scale
 
     childCreature.TargetRandomPosition()
@@ -191,11 +187,16 @@ export class Creature {
   }
 
   UpdateScale(){
-    let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, this.genome.genes[GeneType.size])
+
+	let sizeFactor = Math.abs((-1*(this.genome.genes[GeneType.speed]))+ 1)
+	let size = Scalar.Lerp(MinCreatureScale, MaxCreatureScale, sizeFactor)
+	//  to make size inverse to speed... 
+	//  speed 1 -> size 0,  speed 0 -> size 2, speed 0.5 -> size 1 
 
     this.transform.scale.x = size
     this.transform.scale.y = size
-    this.transform.scale.z = size
+	this.transform.scale.z = size
+
   }
 
   UpdateHealthbar() {
@@ -231,21 +232,20 @@ export class Creature {
   takeDamage() {
     let temperatureDif = this.GetTemperatureDif()
 
-    if (temperatureDif > MinTemperatureDiffForDamage) {
-      let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
+	if (temperatureDif <= MinTemperatureDiffForDamage)  return
+	
+	let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
 
-	  let sizeFactor = this.genome.genes[GeneType.size]*2
-	  
-	  // neutral 0.5 size -> /1*1 .. no effect
-	  // large 1 size -> /2*2  ->   less damage
-	  // small 0 size -> /0.5*0.5  ->  more damage
-	  let damageForSize = temperatureDamage / (sizeFactor * sizeFactor)
-	  this.health -= damageForSize
+	
+	//  to make damage proportional to speed  (more speed, smaller, more fragile)
+	let damageForSize = temperatureDamage * this.genome.genes[GeneType.speed]
 
-      if (this.health < 0) this.health = 0
+	this.health -= damageForSize
 
-      this.UpdateHealthbar()
-    }
+	if (this.health < 0) this.health = 0
+
+	this.UpdateHealthbar()
+
   }
 
   GetTemperatureDif(){
@@ -269,12 +269,20 @@ export class DieSLowly implements ISystem {
     for (let entity of creatures.entities) {
       let creature = entity.getComponent(Creature)
 
-      creature.takeDamage()
-      if (creature.health <= 0) {
-        log("RIP")
-        ClearCreatureEntity(entity)
-        engine.removeEntity(entity)
-      }
+	  if (creature.environment == null) continue
+	  
+	  creature.damageCounter -= 1
+
+	  if (creature.damageCounter < 0){
+		creature.takeDamage()
+		if (creature.health <= 0) {
+		  log("RIP")
+		  ClearCreatureEntity(entity)
+		  engine.removeEntity(entity)
+		}
+		creature.damageCounter = framesBetweenDamage
+	  }
+      
     }
   }
 }
@@ -285,6 +293,9 @@ export class Wander implements ISystem {
 
   update(dt: number) {
     for (let entity of creatures.entities) {
+
+	  if (entity.getComponent(GrabableObjectComponent).grabbed) continue
+
       let creature = entity.getComponent(Creature)
 
       if (creature.movementPauseTimer > 0) {
@@ -295,9 +306,7 @@ export class Wander implements ISystem {
 
       if (creature.movementFraction >= 1) continue
 
-	  let speed = Math.abs((-1*(creature.genome.genes[GeneType.size]))+ 1)
-	  //  to make speed inverse to size... 
-	  //  size 1 -> speed 0,  size 0 -> speed 1, size 0.5 -> speed 0.5 
+	  let speed = creature.genome.genes[GeneType.speed]
 
 
     //   if (!creature.walkAnim.playing) {
@@ -317,14 +326,14 @@ export class Wander implements ISystem {
         )
       
       this.sinTime += dt * speed * 4
-      let verticalOffset = new Vector3(0, Math.abs(Math.sin(this.sinTime)) * Math.abs(creature.genome.genes[GeneType.temperature]/30), 0)
-      creature.transform.position = Vector3.Add(creature.transform.position, verticalOffset)
+      let verticalOffset = Math.abs(Math.sin(this.sinTime)) * Math.abs(creature.genome.genes[GeneType.temperature]/30)
+      creature.transform.position.y = verticalOffset
 
       // reached destination
       if (creature.movementFraction == 1) {
-        creature.walkAnim.stop()
-
-        creature.movementPauseTimer = Math.random() * 5
+       
+		creature.movementPauseTimer = Math.random() * 20
+		creature.transform.position.y = 0
 
         let minDistanceTraveledForBreeding = 3
         if (
@@ -481,6 +490,21 @@ export function BuildBody(creature: IEntity){
 	body.setParent(creature)
 	body.addComponent(neutralChipaBody)
 
+
+	
+
+	body.addComponentOrReplace(
+		new OnClick(() => {
+			if (!body.getParent().getComponent(GrabableObjectComponent).grabbed ){
+			  grabObject(body.getParent())
+			} else {
+			  dropObject()
+			}
+		  // TODO: GET GRABBED HERE
+		})
+	  ) 
+
+
 	if (temperature < -30) {
 		let coat = new Entity()
 		coat.addComponent(winterChipaBody2)
@@ -606,3 +630,4 @@ export function BuildBody(creature: IEntity){
 
 
 }
+

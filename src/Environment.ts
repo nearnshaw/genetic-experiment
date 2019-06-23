@@ -4,7 +4,11 @@ import { GeneType } from "./Genome"
 @Component("environment")
 export class Environment {
   temperature: number
-  constructor(temp: number) {
-    this.temperature = temp
+  position: Vector3
+  constructor(temp: number, pos: Vector3) {
+	this.temperature = temp,
+	this.position = pos
   }
 }
+
+export const environments = engine.getComponentGroup(Environment)
