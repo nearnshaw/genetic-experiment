@@ -19,8 +19,13 @@ let MutationMaxSpreads: number[] = [
 // let TemperatureButtonValue = 25
 let TemperatureButtonValue = 10 //MutationMaxSpreads[1] / 2
 
+
+let framesBetweenDamage = 15
+
 // Coefficient to multiply damage done on every frame
-let DamageCoeff = 0.005
+let DamageCoeff = 0.005 * framesBetweenDamage
+
+
 
 // Minimum temperature diff for the creature to start receiving damage
 let MinTemperatureDiffForDamage = 8
@@ -30,6 +35,7 @@ let MinCreatureScale = 0.25
 
 // Creatures at max temperature (100) will have this scale factor
 let MaxCreatureScale = 2.3
+
 
 let ColdEnvironmentTemperature = -30
 let HotEnvironmentTemperature = 60
