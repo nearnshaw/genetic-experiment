@@ -141,7 +141,7 @@ export class Creature {
   TargetRandomPosition() {
     this.oldPos = this.transform.position
 	this.oldPos.y = 0
-	this.nextPos = newCenteredRandomPos( this.environment.position , 8)
+	this.nextPos = newCenteredRandomPos( this.environment.position , this.environment.size)
     //this.nextPos = newCenteredRandomPos( neutralEnviromnentPosition , 8)
 
     this.movementFraction = 0
@@ -351,9 +351,10 @@ export class Wander implements ISystem {
 
         let minDistanceTraveledForBreeding = 3
         if (
-          Math.random() < 0.7 && // 70% chance of spawning a child
-          Vector3.Distance(creature.oldPos, creature.transform.position) >=
-            minDistanceTraveledForBreeding
+		  Math.random() < 0.7 // 70% chance of spawning a child
+		  && creature.environment.size == 8
+          //&& Vector3.DistanceSquared(creature.oldPos, creature.transform.position) >=
+          //  minDistanceTraveledForBreeding
         ) {
           creature.SpawnChild()
         }

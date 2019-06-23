@@ -38,7 +38,7 @@ let MaxCreatureScale = 2.3
 
 
 let ColdEnvironmentTemperature = -30
-let HotEnvironmentTemperature = 60
+let HotEnvironmentTemperature = 70
 
 let neutralEnvironmentPosition = new Vector3(16, 0.01, 40)
 let hotEnvironmentPosition = new Vector3(48, 0.01, 32)
