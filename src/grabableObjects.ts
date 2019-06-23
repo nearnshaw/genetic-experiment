@@ -77,7 +77,7 @@ export function grabObject(grabbedObject: IEntity) {
       grabbedObject.getComponent(GrabableObjectComponent).grabbed = true
       grabbedObject.setParent(objectGrabber)
 	  grabbedObject.getComponent(Transform).position = grabbedOffset.clone()
-	  grabbedObject.getComponent(Creature).environment = null
+	  grabbedObject.getComponent(Creature).SetEnvironment(null)
 
 	  objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject = grabbedObject
     } else {
@@ -104,7 +104,7 @@ export function dropObject() {
 
 		grabbedObject.getComponent(Transform).position = closestArea.getComponent(Environment).position
 		grabbedObject.getComponent(GrabableObjectComponent).grabbed = false
-		grabbedObject.getComponent(Creature).environment = closestArea.getComponent(Environment)
+		grabbedObject.getComponent(Creature).SetEnvironment(closestArea.getComponent(Environment))
 		
 		objectGrabber.getComponent(ObjectGrabberComponent).grabbedObject = null
 

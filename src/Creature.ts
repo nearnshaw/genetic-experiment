@@ -214,10 +214,14 @@ export class Creature {
   }
 
   UpdateTemperatureIcons(){
-    if(!this.environment) return
+    if(!this.environment){
+      this.hotIconEntityTransform.scale.set(0, 0, 0)
+      this.coldIconEntityTransform.scale.set(0, 0, 0)
+      return
+    }
     
-    let hotterEnvironmentTemp = this.environment.temperature + 10
-    let colderEnvironmentTemp = this.environment.temperature - 10
+    let hotterEnvironmentTemp = this.environment.temperature + TemperatureButtonValue
+    let colderEnvironmentTemp = this.environment.temperature - TemperatureButtonValue
 
     if(Math.abs(hotterEnvironmentTemp - this.genome.genes[GeneType.temperature]) <= MinTemperatureDiffForDamage)
       this.hotIconEntityTransform.scale.set(0.25, 0.25, 0.25)
@@ -257,13 +261,14 @@ export class Creature {
   }
 
   SetEnvironment(newEnvironment: Environment){
-    if(!newEnvironment || newEnvironment == this.environment) return
+    if(newEnvironment == this.environment) return
 
     if(this.environment) this.environment.removeCreature()
 
     this.environment = newEnvironment
 
-    this.environment.addCreature()
+    if(this.environment)
+      this.environment.addCreature()
 
     this.UpdateTemperatureIcons()
   }
