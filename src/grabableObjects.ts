@@ -97,7 +97,8 @@ export function dropObject(environment: Environment = null) {
 
 		grabbedObject.getComponent(Transform).position = environment.position
 		grabbedObject.getComponent(GrabableObjectComponent).grabbed = false
-		grabbedObject.getComponent(Creature).SetEnvironment(environment)
+    grabbedObject.getComponent(Creature).SetEnvironment(environment)
+    grabbedObject.getComponent(Creature).TargetRandomPosition()
 		
 		grabbedObject = null
 

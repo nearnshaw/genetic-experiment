@@ -143,8 +143,8 @@ export class Creature {
 
   TargetRandomPosition() {
     this.oldPos = this.transform.position
-	this.oldPos.y = 0
-	this.nextPos = newCenteredRandomPos( this.environment.position , this.environment.size)
+	  this.oldPos.y = 0
+	  this.nextPos = newCenteredRandomPos( this.environment.position , this.environment.size)
     //this.nextPos = newCenteredRandomPos( neutralEnviromnentPosition , 8)
 
     this.movementFraction = 0
