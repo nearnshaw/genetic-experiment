@@ -1,3 +1,4 @@
+import { Creature } from "./Creature";
 
 @Component("environment")
 export class Environment {
@@ -6,30 +7,30 @@ export class Environment {
   onCreaturesCountUpdated!: any
   size: number
   
-  private creaturesCount: number = 0
+  creatures: Creature[]
 
   constructor(temp: number, pos: Vector3, size: number) {
-    this.temperature = temp,
-	this.position = pos,
-	this.size = size
+    this.temperature = temp
+    this.position = pos
+    this.size = size
+
+    this.creatures = new Array()
   }
 
-  addCreature() {
-    this.creaturesCount++
+  addCreature(newCreature: Creature) {
+    let newCreaturesCount = this.creatures.push(newCreature)
 
     if(this.onCreaturesCountUpdated)
-      this.onCreaturesCountUpdated(this.creaturesCount)
+      this.onCreaturesCountUpdated(newCreaturesCount)
   }
 
-  removeCreature() {
-    this.creaturesCount--
+  removeCreature(newCreature: Creature) {
+
+    // removes the creature from the array. This probably leads to memory leaks T_T, but needed right now XD
+    this.creatures = this.creatures.filter(x => x != newCreature)
 
     if(this.onCreaturesCountUpdated)
-      this.onCreaturesCountUpdated(this.creaturesCount)
-  }
-
-  getCreaturesCount() {
-    return this.creaturesCount
+      this.onCreaturesCountUpdated(this.creatures.length)
   }
 }
 

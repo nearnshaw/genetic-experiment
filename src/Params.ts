@@ -44,6 +44,8 @@ let neutralEnvironmentPosition = new Vector3(16, 0.01, 40)
 let hotEnvironmentPosition = new Vector3(48, 0.01, 32)
 let coldEnvironmentPosition = new Vector3(48, 0.01, 48)
 
+let winPanelTex = new Texture("images/YouWin.png")
+
 let coldIconTex = new Texture("images/cold-thermometer.png")
 let coldIconMaterial = new Material()
 coldIconMaterial.alphaTexture = coldIconMaterial.albedoTexture = coldIconTex
@@ -59,19 +61,22 @@ neutralIconMaterial.alphaTexture = neutralIconMaterial.albedoTexture = neutralIc
 let chippaIconTex = new Texture("images/Chipaicon.png")
 let chippaIconMaterial = new Material()
 chippaIconMaterial.alphaTexture = chippaIconMaterial.albedoTexture = chippaIconTex
-
-let redMaterial = new Material()
-redMaterial.albedoColor = Color3.Red()
-let yellowMaterial = new Material()
-yellowMaterial.albedoColor = Color3.Yellow()
-let greenMaterial = new Material()
-greenMaterial.albedoColor = Color3.Green()
 let hotMaterial = new Material()
 hotMaterial.albedoColor = Color3.Red()
 let coldMaterial = new Material()
 coldMaterial.albedoColor = Color3.Blue()
 let neutralMaterial = new Material()
 neutralMaterial.albedoColor = Color3.Gray()
+let redMaterial = new Material()
+redMaterial.albedoColor = Color3.Red()
+let yellowMaterial = new Material()
+yellowMaterial.albedoColor = Color3.Yellow()
+let greenMaterial = new Material()
+greenMaterial.albedoColor = Color3.Green()
+
+let CheckGameWinConditions!: any
+let CheckGameLoseConditions!: any
+let gameOver = false
 
 // INITIAL NUMBER OF CREATURES
 

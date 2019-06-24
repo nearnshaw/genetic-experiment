@@ -1,5 +1,5 @@
 import { Creature, chipaPool, creatures, BuildBody } from "./Creature"
-import { Environment } from "./Environment"
+import { Environment, environments } from "./Environment"
 import { ButtonData, PushButton } from "./Button"
 import { ObjectGrabberSystem, dropObject } from "./grabableObjects";
 
@@ -17,51 +17,59 @@ parkEntity.addComponent(
 engine.addEntity(parkEntity)
 
 // Instanciar environments
-let hotEnvironment = new Entity()
-let hot = new Environment(HotEnvironmentTemperature, hotEnvironmentPosition, 4)
-hotEnvironment.addComponent(hot)
-hotEnvironment.addComponent(new PlaneShape())
-hotEnvironment.addComponent(
+let hotEnvironmentEntity = new Entity()
+export let hotEnvironment = new Environment(HotEnvironmentTemperature, hotEnvironmentPosition, 4)
+hotEnvironmentEntity.addComponent(hotEnvironment)
+hotEnvironmentEntity.addComponent(new PlaneShape())
+hotEnvironmentEntity.addComponent(
   new Transform({
     position: hotEnvironmentPosition,
     scale: new Vector3(8, 8, 8),
     rotation: Quaternion.Euler(90, 0, 0)
   })
-)
-hotEnvironment.addComponent(hotMaterial)
-hotEnvironment.addComponent(
+  )
+
+hotEnvironmentEntity.addComponent(hotMaterial)
+
+hotEnvironmentEntity.addComponent(
   new OnClick(e => {
-    dropObject(hot)
+    dropObject(hotEnvironment)
+
+    CheckGameWinConditions()
   })
 )
-engine.addEntity(hotEnvironment)
+engine.addEntity(hotEnvironmentEntity)
 
 // Instanciar environments
-let coldEnvironment = new Entity()
-let cold = new Environment(ColdEnvironmentTemperature, coldEnvironmentPosition, 4)
-coldEnvironment.addComponent(cold)
-coldEnvironment.addComponent(new PlaneShape())
-coldEnvironment.addComponent(
+let coldEnvironmentEntity = new Entity()
+export let coldEnvironment = new Environment(ColdEnvironmentTemperature, coldEnvironmentPosition, 4)
+coldEnvironmentEntity.addComponent(coldEnvironment)
+coldEnvironmentEntity.addComponent(new PlaneShape())
+coldEnvironmentEntity.addComponent(
   new Transform({
     position: coldEnvironmentPosition,
     scale: new Vector3(8, 8, 8),
     rotation: Quaternion.Euler(90, 0, 0)
   })
 )
-coldEnvironment.addComponent(coldMaterial)
-coldEnvironment.addComponent(
+
+coldEnvironmentEntity.addComponent(coldMaterial)
+
+coldEnvironmentEntity.addComponent(
   new OnClick(e => {
-    dropObject(cold)
+    dropObject(coldEnvironment)
+
+    CheckGameWinConditions()
   })
 )
-engine.addEntity(coldEnvironment)
+engine.addEntity(coldEnvironmentEntity)
 
 // neutral environment
-let neutralEnvironment = new Entity()
-export let neutral = new Environment(20, neutralEnvironmentPosition, 8)
-neutralEnvironment.addComponent(neutral)
-neutralEnvironment.addComponent(new PlaneShape())
-neutralEnvironment.addComponent(
+let neutralEnvironmentEntity = new Entity()
+export let neutralEnvironment = new Environment(20, neutralEnvironmentPosition, 8)
+neutralEnvironmentEntity.addComponent(neutralEnvironment)
+neutralEnvironmentEntity.addComponent(new PlaneShape())
+neutralEnvironmentEntity.addComponent(
   new Transform({
     position: neutralEnvironmentPosition,
     scale: new Vector3(16, 16, 16),
@@ -70,7 +78,7 @@ neutralEnvironment.addComponent(
 )
 
 // Configure callback for updating texts when the creatures count change
-neutral.onCreaturesCountUpdated = function(creaturesCount) {
+neutralEnvironment.onCreaturesCountUpdated = function(creaturesCount) {
   if(creaturemeterText)
     creaturemeterText.value = creaturesCount + "/10"
 
@@ -78,23 +86,24 @@ neutral.onCreaturesCountUpdated = function(creaturesCount) {
     monitorCreaturemeterText.value = creaturesCount + "/10"
 }
 
-neutralEnvironment.addComponent(
+neutralEnvironmentEntity.addComponent(
   new OnClick(e => {
-    dropObject(neutral)
+    dropObject(neutralEnvironment)
   })
 )
-engine.addEntity(neutralEnvironment)
+engine.addEntity(neutralEnvironmentEntity)
 
 // Instantiate first creature
 let adamEntity = chipaPool.getEntity()
-let adam = new Creature(adamEntity, neutral)
+
+let adam = new Creature(adamEntity, neutralEnvironment)
+
 adamEntity.addComponent(adam)
 adam.transform.position = new Vector3(24, 0, 24)
 adam.TargetRandomPosition()
 BuildBody(adamEntity)
 adam.UpdateTemperatureText()
 adam.UpdateScale()
-
 // Console Machine
 let machine = new Entity()
 machine.addComponent(
@@ -118,17 +127,17 @@ tempUp.addComponent(new GLTFShape("models/Button.glb"))
 tempUp.addComponent(hotMaterial)
 tempUp.addComponent(
   new OnClick(e => {
-    neutral.temperature += TemperatureButtonValue
-    if (neutral.temperature > 100) neutral.temperature = 100
+    neutralEnvironment.temperature += TemperatureButtonValue
+    if (neutralEnvironment.temperature > 100) neutralEnvironment.temperature = 100
 
     tempUp.getComponent(ButtonData).pressed = true
     let b = neutralMaterial.albedoColor.b
     let r = neutralMaterial.albedoColor.r
     neutralMaterial.albedoColor = new Color3(r + 0.6, 0.5, b - 0.6)
     // neutralEnvironment.removeComponent(Material)
-    neutralEnvironment.addComponentOrReplace(neutralMaterial)
+    neutralEnvironmentEntity.addComponentOrReplace(neutralMaterial)
 
-    let tempInC = neutral.temperature.toString()
+    let tempInC = neutralEnvironment.temperature.toString()
     temperatureText.value = tempInC + "°"
     monitorTempText.value = tempInC + "°"
 
@@ -138,8 +147,6 @@ tempUp.addComponent(
       creature.UpdateTemperatureText()
       creature.UpdateTemperatureIcons()
     }
-
-    log("temperature: " + neutral.temperature)
   })
 )
 tempUp.addComponent(new ButtonData(14.5, 14.7))
@@ -158,8 +165,8 @@ tempDown.addComponent(new GLTFShape("models/Button.glb"))
 tempDown.addComponent(coldMaterial)
 tempDown.addComponent(
   new OnClick(e => {
-    neutral.temperature -= TemperatureButtonValue
-    if (neutral.temperature < -100) neutral.temperature = -100
+    neutralEnvironment.temperature -= TemperatureButtonValue
+    if (neutralEnvironment.temperature < -100) neutralEnvironment.temperature = -100
 
     tempDown.getComponent(ButtonData).pressed = true
     //neutralMaterial.albedoColor.g = 85
@@ -167,9 +174,9 @@ tempDown.addComponent(
     let r = neutralMaterial.albedoColor.r
     neutralMaterial.albedoColor = new Color3(r - 0.6, 0.5, b + 0.6)
     // neutralEnvironment.removeComponent(Material)
-    neutralEnvironment.addComponentOrReplace(neutralMaterial)
+    neutralEnvironmentEntity.addComponentOrReplace(neutralMaterial)
 
-    let tempInC = neutral.temperature.toString()
+    let tempInC = neutralEnvironment.temperature.toString()
     temperatureText.value = tempInC + "°"
     monitorTempText.value = tempInC + "°"
 
@@ -179,8 +186,6 @@ tempDown.addComponent(
       creature.UpdateTemperatureText()
       creature.UpdateTemperatureIcons()
     }
-
-    log("temperature: " + neutral.temperature)
   })
 )
 tempDown.addComponent(new ButtonData(14.5, 14.7))
@@ -188,7 +193,7 @@ engine.addEntity(tempDown)
 tempDown.setParent(machine)
 
 let thermometer = new Entity()
-let temperatureText = new TextShape(neutral.temperature.toString() + "°")
+let temperatureText = new TextShape(neutralEnvironment.temperature.toString() + "°")
 temperatureText.fontSize = 4
 temperatureText.hTextAlign = "center"
 temperatureText.vTextAlign = "center"
@@ -245,7 +250,7 @@ engine.addEntity(creaturemeterIconEntity)
 
 // Big Monitor Info
 let monitorThermometer = new Entity()
-let monitorTempText = new TextShape(neutral.temperature.toString() + "°")
+let monitorTempText = new TextShape(neutralEnvironment.temperature.toString() + "°")
 monitorTempText.fontSize = 15
 monitorTempText.hTextAlign = "center"
 monitorTempText.vTextAlign = "center"
@@ -294,3 +299,66 @@ monitorCreaturemeterIconEntity.addComponent(new Transform({
 monitorCreaturemeterIconEntity.addComponent(new PlaneShape())
 monitorCreaturemeterIconEntity.addComponent(chippaIconMaterial)
 engine.addEntity(monitorCreaturemeterIconEntity)
+
+CheckGameWinConditions = function() {
+  if(gameOver) return
+
+	if(coldEnvironment.creatures.length >= 3) {
+    let comfyCreatures: number = 0
+
+    for (let creature of coldEnvironment.creatures) {
+      if(creature.IsAtIdealTemperature()) comfyCreatures++
+    }
+
+    if(comfyCreatures < 3 || hotEnvironment.creatures.length < 3) return
+
+    for (let creature of hotEnvironment.creatures) {
+      if(creature.IsAtIdealTemperature()) comfyCreatures++
+    }
+
+    if(comfyCreatures < 6) return
+
+    // YOU WIN!!!
+    gameOver = true
+
+    let uiCanvas = new UICanvas()
+    let winImage = new UIImage(uiCanvas, winPanelTex)
+    winImage.width = 512
+    winImage.height = 512
+    winImage.sourceWidth = 512
+    winImage.sourceHeight = 512
+    winImage.hAlign = "center"
+    winImage.vAlign = "center"
+  }
+}
+
+CheckGameLoseConditions = function() {
+  if(gameOver) return
+
+  log("begin environments check")
+	for (let environment of environments.entities) {
+    
+    log(environment.getComponent(Environment).creatures.length)
+    if(environment.getComponent(Environment).creatures.length > 0) return
+  }
+
+  // YOU LOST - REFRESH THE TAB AND GIVE IT ANOTHER SHOT!
+  gameOver = true
+
+  let uiCanvas = new UICanvas()
+  let panel = new UIContainerRect(uiCanvas)
+  panel.width = "100%"
+  panel.height = "50%"
+  panel.positionY = 5
+  panel.color = new Color4(0, 0, 0, 0.75)
+  let lostText = new UIText(panel)
+  lostText.value = "YOU LOST!\n\nREFRESH THE TAB AND GIVE IT ANOTHER SHOT!"
+  lostText.color = Color4.Yellow()
+  lostText.outlineColor = Color4.Magenta()
+  lostText.fontSize = 45
+  lostText.outlineWidth = 0.1
+  lostText.vAlign = "center"
+  lostText.hAlign = "center"
+  lostText.vTextAlign = "center"
+  lostText.hTextAlign = "center"
+}

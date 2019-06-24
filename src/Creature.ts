@@ -3,7 +3,7 @@ import { ProgressBar } from "./ProgressBar"
 import { Environment } from "./Environment"
 import { Pool } from "./ObjectPool"
 import { GrabableObjectComponent, grabObject, dropObject } from "./grabableObjects";
-//import { neutral } from "./game";
+// import { CheckGameLoseConditions } from "./game";
 
 const MAX_CREATURES_AMOUNT = 10
 
@@ -36,13 +36,14 @@ export class Creature {
 
   constructor(entity: IEntity, environment: Environment) {
     this.entity = entity
-
+    
     this.transform = new Transform()
+    
 	  entity.addComponent(this.transform)
-  
+    
     this.grabableObjectComponent = new GrabableObjectComponent() 
 	  entity.addComponent(this.grabableObjectComponent)
-
+    
     //let speed = 0.5
     let size = 0.5
     let temperature = 20
@@ -56,7 +57,7 @@ export class Creature {
 
     this.genome = new Genome([size, temperature, ears, eyes, feet, mouth, nose, tail, wings])
     entity.addComponent(this.genome)
-
+    
     // let animator = new Animator()
     // this.walkAnim = animator.getClip("Walking")
     // entity.addComponent(animator)
@@ -78,7 +79,7 @@ export class Creature {
 	  )
 	
     // engine.addEntity(nameTextEntity)
-
+    
     let temperatureTextEntity = new Entity()
     temperatureTextEntity.setParent(nameTextEntity)
     this.temperatureText = new TextShape(temperature + "°")
@@ -209,10 +210,10 @@ export class Creature {
   UpdateTemperatureText() {
     this.temperatureText.value = this.genome.genes[GeneType.temperature] + "°"
 
-    if(this.GetTemperatureDif() > MinTemperatureDiffForDamage)
-      this.temperatureText.color = Color3.Red()
-    else
+    if(this.IsAtIdealTemperature())
       this.temperatureText.color = Color3.Green()
+    else
+      this.temperatureText.color = Color3.Red()
   }
 
   UpdateTemperatureIcons(){
@@ -237,22 +238,25 @@ export class Creature {
   }
 
   takeDamage() {
+    if(this.IsAtIdealTemperature()) return
+
     let temperatureDif = this.GetTemperatureDif()
-
-	if (temperatureDif <= MinTemperatureDiffForDamage)  return
 	
-	let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
-
+	  let temperatureDamage = temperatureDif * temperatureDif * DamageCoeff
 	
-	//  to make damage proportional to speed  (more speed, smaller, more fragile)
-	let damageForSize = temperatureDamage * this.genome.genes[GeneType.speed]
+    //  to make damage proportional to speed  (more speed, smaller, more fragile)
+    let damageForSize = temperatureDamage * this.genome.genes[GeneType.speed]
 
-	this.health -= damageForSize
+    this.health -= damageForSize
 
-	if (this.health < 0) this.health = 0
+    if (this.health < 0) this.health = 0
 
-	this.UpdateHealthbar()
+    this.UpdateHealthbar()
 
+  }
+
+  IsAtIdealTemperature(): boolean {
+    return this.GetTemperatureDif() <= MinTemperatureDiffForDamage
   }
 
   GetTemperatureDif(){
@@ -265,12 +269,12 @@ export class Creature {
   SetEnvironment(newEnvironment: Environment){
     if(newEnvironment == this.environment) return
 
-    if(this.environment) this.environment.removeCreature()
+    if(this.environment) this.environment.removeCreature(this)
 
     this.environment = newEnvironment
 
     if(this.environment)
-      this.environment.addCreature()
+      this.environment.addCreature(this)
 
     this.UpdateTemperatureIcons()
   }
@@ -292,9 +296,11 @@ export class DieSLowly implements ISystem {
 
         if (creature.health <= 0) {
           log("RIP")
-          creature.environment.removeCreature()
+          creature.environment.removeCreature(creature)
           ClearCreatureEntity(entity)
           engine.removeEntity(entity)
+
+          CheckGameLoseConditions()
         }
 
         creature.damageCounter = framesBetweenDamage
