@@ -15,11 +15,7 @@ export class GrabableObjectComponent {
 export class ObjectGrabberComponent {
 }
 
-let grabbedOffset = new Vector3(0.5, 1, 0)
-
-// workaround since `setParent(null)` won't work
-let dummyPosParent = new Entity()
-engine.addEntity(dummyPosParent)
+let grabbedOffset = new Vector3(1.5, -1, 0.5)
 
 
 // object to get user position and rotation
@@ -30,7 +26,8 @@ let objectGrabber = new Entity()
 objectGrabber.addComponent(
   new Transform({
     position: camera.position.clone(),
-    rotation: camera.rotation.clone()
+	rotation: camera.rotation.clone(),
+	scale: new Vector3(0.25, 0.25, 0.25)
   })
 )
 objectGrabber.addComponent(new ObjectGrabberComponent())
@@ -92,8 +89,7 @@ export function dropObject(environment: Environment = null) {
     environment = environment? environment : getClosestArea(Camera.instance.position)!.getComponent(Environment)
     
     if (environment) {
-		// workaround ... parent should be null
-		grabbedObject.setParent(dummyPosParent)
+		grabbedObject.setParent(null)
 
 		grabbedObject.getComponent(Transform).position = environment.position
 		grabbedObject.getComponent(GrabableObjectComponent).grabbed = false
